@@ -1,0 +1,2870 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2019-08-31 sam. 00:00 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Write yourself a Git!</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="[[mailto:thibault@thb.lt][Thibault Polge]]Thibault Polge" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2019 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Write yourself a Git!</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orge011130">1. Introduction</a></li>
+<li><a href="#getting-started">2. Getting started</a></li>
+<li><a href="#orgd86d64b">3. Creating repositories: init</a>
+<ul>
+<li><a href="#orgdefb891">3.1. The Repository object</a></li>
+<li><a href="#cmd-init">3.2. The init command</a></li>
+<li><a href="#org7d04050">3.3. The repo_find() function</a></li>
+</ul>
+</li>
+<li><a href="#objects">4. Reading and writing objects: hash-object and cat-file</a>
+<ul>
+<li><a href="#org73cbeb2">4.1. What are objects?</a></li>
+<li><a href="#org78c29dd">4.2. A generic object object</a></li>
+<li><a href="#org8f9d097">4.3. Reading objects</a></li>
+<li><a href="#org7e5f74a">4.4. Writing objects</a></li>
+<li><a href="#org469761c">4.5. Working with blobs</a></li>
+<li><a href="#cmd-cat-file">4.6. The cat-file command</a></li>
+<li><a href="#cmd-hash-object">4.7. The hash-object command</a></li>
+<li><a href="#packfiles">4.8. What about packfiles?</a></li>
+</ul>
+</li>
+<li><a href="#org77c49fe">5. Reading commit history: log</a>
+<ul>
+<li><a href="#org421331c">5.1. Parsing commits</a></li>
+<li><a href="#orgd3c360a">5.2. The Commit object</a></li>
+<li><a href="#cmd-log">5.3. The log command</a></li>
+<li><a href="#orgea3fb85">5.4. Anatomy of a commit</a></li>
+</ul>
+</li>
+<li><a href="#orge2022b2">6. Reading commit data: checkout</a>
+<ul>
+<li><a href="#org2762ef6">6.1. What&rsquo;s in a tree?</a></li>
+<li><a href="#orga708f5f">6.2. Parsing trees</a></li>
+<li><a href="#cmd-checkout">6.3. The checkout command</a></li>
+</ul>
+</li>
+<li><a href="#org9bcac5c">7. Refs, tags and branches</a>
+<ul>
+<li><a href="#org6c64fc7">7.1. What&rsquo;s a ref?</a></li>
+<li><a href="#org00788cc">7.2. What&rsquo;s a tag?</a></li>
+<li><a href="#orgc582c97">7.3. Parsing tag objects</a></li>
+<li><a href="#cmd-tag">7.4. The tag command</a></li>
+<li><a href="#orgc500eb5">7.5. What&rsquo;s a branch?</a></li>
+<li><a href="#func-object_find">7.6. Referring to objects: the <code>object_find</code> function</a>
+<ul>
+<li><a href="#orga590ffc">7.6.1. Resolving names</a></li>
+<li><a href="#org0b6acd1">7.6.2. The rev-parse command</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgfb299ae">8. The staging area and the index file</a>
+<ul>
+<li><a href="#org4b21691">8.1. Parsing the index</a></li>
+</ul>
+</li>
+<li><a href="#org235a93b">9. Final words</a>
+<ul>
+<li><a href="#feedback">9.1. Comments, feedback and issues</a></li>
+<li><a href="#contributing">9.2. Contributing</a></li>
+<li><a href="#orga204450">9.3. Release information</a></li>
+<li><a href="#org1f80107">9.4. License</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orge011130" class="outline-2">
+<h2 id="orge011130"><span class="section-number-2">1</span> Introduction</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This article is an attempt at explaining the <a href="https://git-scm.com/">Git version control
+system</a> from the bottom up, that is, starting at the most fundamental
+level moving up from there.  This does not sound too easy, and has
+been attempted multiple times with questionable success.  But there&rsquo;s
+an easy way: all it takes to understand Git internals is to
+reimplement Git from scratch.
+</p>
+
+<p>
+No, don&rsquo;t run.
+</p>
+
+<p>
+It&rsquo;s not a joke, and it&rsquo;s really not complicated: if you read this
+article top to bottom and write the code (or just clone <a href="https://github.com/thblt/write-yourself-a-git">the repository</a>
+&#x2014; but you should write the code yourself, really), you&rsquo;ll end up
+with a program, called <code>wyag</code>, that will implement all the fundamental
+features of git: <code>init</code>, <code>add</code>, <code>rm</code>, <code>status</code>, <code>commit</code>, <code>log</code>&#x2026; in a way that
+is perfectly compatible with <code>git</code> itself.  The last commit of this
+article was actually created with <code>wyag</code>, not <code>git</code>.  And all that in
+exactly 503 lines of very simple Python code.
+</p>
+
+<p>
+But isn&rsquo;t Git too complex for that?  That Git is complex is, in my
+opinion, a misconception.  Git is a large program, with a lot of
+features, that&rsquo;s true.  But the core of that program is actually
+extremely simple, and its apparent complexity stems first from the
+fact it&rsquo;s often deeply counterintuitive (and <a href="https://byorgey.wordpress.com/2009/01/12/abstraction-intuition-and-the-monad-tutorial-fallacy/">Git is a burrito</a> blog
+posts probably don&rsquo;t help).  But maybe what makes Git the most
+confusing is the extreme simplicity <i>and</i> power of its core model.  The
+combination of core simplicity and powerful applications often makes
+thing really hard to grasp, because of the mental jump required to
+derive the variety of applications from the essential simplicity of
+the fundamental abstraction (monads, anyone?)
+</p>
+
+<p>
+Implementing Git will expose its fundamentals in all their naked
+glory.
+</p>
+
+<p>
+<b>What to expect?</b>  This article will implement and explain in great
+details (if something is not clear, please <a href="#feedback">report it</a>!) a very
+simplified version of Git core commands.  I will keep the code simple
+and to the point, so <code>wyag</code> won&rsquo;t come anywhere near the power of the
+real git command-line &#x2014; but what&rsquo;s missing will be obvious, and
+trivial to implement by anyone who wants to give it a try.  &ldquo;Upgrading
+wyag to a full-featured git library and CLI is left as an exercise to
+the reader&rdquo;, as they say.
+</p>
+
+<p>
+More precisely, we&rsquo;ll implement:
+</p>
+
+<ul class="org-ul">
+<li><code>add</code> () <a href="https://git-scm.com/docs/git-add">git man page</a></li>
+<li><code>cat-file</code> (<a href="#cmd-cat-file">wyag source</a>) <a href="https://git-scm.com/docs/git-cat-file">git man page</a></li>
+<li><code>checkout</code> (<a href="#cmd-checkout">wyag source</a>) <a href="https://git-scm.com/docs/git-checkout">git man page</a></li>
+<li><code>commit</code> () <a href="https://git-scm.com/docs/git-commit">git man page</a></li>
+<li><code>hash-object</code> (<a href="#cmd-hash-object">wyag source</a>) <a href="https://git-scm.com/docs/git-hash-object">git man page</a></li>
+<li><code>init</code> (<a href="#cmd-init">wyag source</a>) <a href="https://git-scm.com/docs/git-init">git man page</a></li>
+<li><code>log</code> (<a href="#cmd-log">wyag source</a>) <a href="https://git-scm.com/docs/git-log">git man page</a></li>
+<li><code>ls-tree</code> () <a href="https://git-scm.com/docs/git-ls-tree">git man page</a></li>
+<li><code>merge</code> () <a href="https://git-scm.com/docs/git-merge">git man page</a></li>
+<li><code>rebase</code> () <a href="https://git-scm.com/docs/git-rebase">git man page</a></li>
+<li><code>rev-parse</code> () <a href="https://git-scm.com/docs/git-rev-parse">git man page</a></li>
+<li><code>rm</code> () <a href="https://git-scm.com/docs/git-rm">git man page</a></li>
+<li><code>show-ref</code> () <a href="https://git-scm.com/docs/git-show-ref">git man page</a></li>
+<li><code>tag</code> (<a href="#cmd-tag">wyag source</a>) <a href="https://git-scm.com/docs/git-tag">git man page</a></li>
+</ul>
+
+<p>
+You&rsquo;re not going to need to know much to follow this article: just
+some basic Git (obviously), some basic Python, some basic shell.
+</p>
+
+<ul class="org-ul">
+<li>First, I&rsquo;m only going to assume some level of familiarity with the
+most basic <b>git commands</b> &#x2014; nothing like an expert level, but if
+you&rsquo;ve never used <code>init</code>, <code>add</code>, <code>rm</code>, <code>commit</code> or <code>checkout</code>, you will be
+lost.</li>
+<li>Language-wise, wyag will be implemented in <b>Python</b>.  Again, I won&rsquo;t
+use anything too fancy, and Python looks like pseudo-code anyways,
+so it will be easy to follow (ironically, the most complicated part
+will be the command-line arguments parsing logic, and you don&rsquo;t
+really need to understand that).  Yet, if you know programming but
+have never done any Python, I suggest you find a crash course
+somewhere in the internet just to get acquainted with the language.</li>
+<li><code>wyag</code> and <code>git</code> are terminal programs.  I assume you know your way
+inside a Unix terminal.  Again, you don&rsquo;t need to be a l77t h4x0r,
+but <code>cd</code>, <code>ls</code>, <code>rm</code>, <code>tree</code> and their friends should be in your toolbox.</li>
+</ul>
+
+<div class="warning">
+<p>
+<b>Note for Windows users</b>
+</p>
+
+<p>
+<code>wyag</code> should run on any Unix-like system with a Python interpreter,
+but I have absolutely no idea how it will behave on Windows.  The
+test suite absolutely requires a bash-compatible shell, which I
+assume the WSL can provide.  Feedback from Windows users would be
+appreciated!
+</p>
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6778f0d" class="outline-2">
+<h2 id="getting-started"><span class="section-number-2">2</span> Getting started</h2>
+<div class="outline-text-2" id="text-getting-started">
+<p>
+You&rsquo;re going to need Python 3 (I used 3.6.5: if you encounter issues
+try using at least this version.  Python 2 won&rsquo;t work at all) and your
+favorite text editor.  We won&rsquo;t need third party packages or
+virtualenvs, or anything besides a regular Python interpreter:
+everything we need is in Python&rsquo;s standard library.
+</p>
+
+<p>
+We&rsquo;ll split the code into two files:
+</p>
+
+<ul class="org-ul">
+<li>An executable, called <code>wyag</code>;</li>
+<li>A Python library, called <code>libwyag.py</code>;</li>
+</ul>
+
+<p>
+Now, every software project starts with a boatload of boilerplate, so let&rsquo;s
+get this over with.
+</p>
+
+<p>
+We&rsquo;ll begin by creating the binary.  Create a new file called <code>wyag</code> in
+your text editor, and copy the following few lines:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-comment-delimiter">#</span><span class="org-comment">!/usr/bin/env python3</span>
+
+<span class="org-keyword">import</span> libwyag
+libwyag.main()
+</pre>
+</div>
+
+<p>
+Then make it executable:
+</p>
+
+<pre class="example">
+$ chmod +x wyag
+</pre>
+
+<p>
+You&rsquo;re done!
+</p>
+
+<p>
+Now for the library.  it must be called <code>libwyag.py</code>, and be in the same
+directory as the <code>wyag</code> executable.  Begin by opening the empty <code>libwyag.py</code> in your
+text editor.
+</p>
+
+<p>
+We&rsquo;re first going to need a bunch of imports (just copy each import,
+or merge them all in a single line)
+</p>
+
+<ul class="org-ul">
+<li><p>
+Git is a CLI application, so we&rsquo;ll need something to parse
+command-line arguments.  Python provides a cool module called
+<a href="https://docs.python.org/3/library/argparse.html">argparse</a> that can do 99% of the job for us.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> argparse
+</pre>
+</div></li>
+
+<li><p>
+We&rsquo;ll need a few more container types than the base lib provides,
+most notably an <code>OrderedDict</code>.  It&rsquo;s in <a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict">collections</a>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> collections
+</pre>
+</div></li>
+
+<li><p>
+Git uses a configuration file format that is basically Microsoft&rsquo;s
+INI format.  The <a href="https://docs.python.org/3/library/configparser.html">configparser</a> module can read and write these
+files.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> configparser
+</pre>
+</div></li>
+
+<li><p>
+Git uses the SHA-1 function quite extensively.  In Python, it&rsquo;s in <a href="https://docs.python.org/3/library/hashlib.html">hashlib</a>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> hashlib
+</pre>
+</div></li>
+
+<li><p>
+<a href="https://docs.python.org/3/library/os.html">os</a> and <a href="https://docs.python.org/3/library/os.path.html">os.path</a> provide some nice filesystem abstraction routines.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> os
+</pre>
+</div></li>
+
+<li><p>
+we use <i>just a bit</i> of regular expressions:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> re
+</pre>
+</div></li>
+
+<li><p>
+We also need <a href="https://docs.python.org/3/library/sys.html">sys</a> to access the actual command-line arguments (in <code>sys.argv</code>):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> sys
+</pre>
+</div></li>
+
+<li><p>
+Git compresses everything using zlib.  Python <a href="https://docs.python.org/3/library/zlib.html">has that</a>, too:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">import</span> zlib
+</pre>
+</div></li>
+</ul>
+
+<p>
+Imports are done.  We&rsquo;ll be working with command-line arguments a lot.
+Python provides a simple yet reasonably powerful parsing library,
+<code>argparse</code>.  It&rsquo;s a nice library, but its interface may not be the most
+intuitive ever; if need, refer to its <a href="https://docs.python.org/3/library/argparse.html">documentation</a>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argparser</span> = argparse.ArgumentParser(description=<span class="org-string">"The stupid content tracker"</span>)
+</pre>
+</div>
+
+<p>
+We&rsquo;ll need to handle subcommands (as in git: <code>init</code>, <code>commit</code>, etc.)  In
+argparse slang, these are called &ldquo;subparsers&rdquo;.  At this point we only
+need to declare that our CLI will use some, and that all invocation
+will actually <i>require</i> one &#x2014; you don&rsquo;t just call <code>git</code>, you
+call <code>git COMMAND</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsubparsers</span> = argparser.add_subparsers(title=<span class="org-string">"Commands"</span>, dest=<span class="org-string">"command"</span>)
+<span class="org-variable-name">argsubparsers.required</span> = <span class="org-constant">True</span>
+</pre>
+</div>
+
+<p>
+The <code>dest="command"</code> argument states that the name of the chosen
+subparser will be returned as a string in a field called <code>command</code>.  So
+we just need to read this string and call the correct function
+accordingly.  By convention, I&rsquo;ll prefix these functions by <code>cmd_</code>.
+<code>cmd_*</code> functions take the parsed arguments as their unique parameter,
+and are responsible for processing and validating them before
+executing the actual command.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">main</span>(argv=sys.argv[1:]):
+    <span class="org-variable-name">args</span> = argparser.parse_args(argv)
+
+    <span class="org-keyword">if</span>   args.command == <span class="org-string">"add"</span>         : cmd_add(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"cat-file"</span>    : cmd_cat_file(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"checkout"</span>    : cmd_checkout(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"commit"</span>      : cmd_commit(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"hash-object"</span> : cmd_hash_object(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"init"</span>        : cmd_init(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"log"</span>         : cmd_log(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"ls-tree"</span>     : cmd_ls_tree(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"merge"</span>       : cmd_merge(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"rebase"</span>      : cmd_rebase(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"rev-parse"</span>   : cmd_rev_parse(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"rm"</span>          : cmd_rm(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"show-ref"</span>    : cmd_show_ref(args)
+    <span class="org-keyword">elif</span> args.command == <span class="org-string">"tag"</span>         : cmd_tag(args)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd86d64b" class="outline-2">
+<h2 id="orgd86d64b"><span class="section-number-2">3</span> Creating repositories: init</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+Obviously, the first Git command in chronological <i>and</i> logical order is
+<code>git init</code>, so we&rsquo;ll begin by creating <code>wyag init</code>.  To achieve this,
+we&rsquo;re going to first need some very basic repository abstraction.
+</p>
+</div>
+
+<div id="outline-container-orgdefb891" class="outline-3">
+<h3 id="orgdefb891"><span class="section-number-3">3.1</span> The Repository object</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+We&rsquo;ll obviously need some abstraction for a repository: almost every
+time we run a git command, we&rsquo;re trying to do something to a
+repository, to create it, read from it or modify it.
+</p>
+
+<p>
+A repository, in git, is made of two things: a &ldquo;work tree&rdquo;, where the
+files meant to be in version control live, and a &ldquo;git directory&rdquo;,
+where Git stores its own data.  In most cases, the worktree is a
+regular directory and the git directory is a child directory of the
+worktree, called <code>.git</code>.
+</p>
+
+<p>
+Git supports <i>much more</i> cases (bare repo, separated gitdir, etc) but we
+won&rsquo;t need them: we&rsquo;ll stick the basic approach of <code>worktree/.git</code>.  Our
+repository object will then just hold two paths: the worktree and the
+gitdir.
+</p>
+
+<p>
+To create a new <code>Repository</code> object, we only need  to make a few checks:
+</p>
+
+<ul class="org-ul">
+<li>We must verify that the directory exists, and contains a
+subdirectory called <code>.git</code>.</li>
+
+<li>We read its configuration in <code>.git/config</code> (it&rsquo;s just an INI file)
+and control that <code>core.repositoryformatversion</code> is 0.  More on that
+field in a moment.</li>
+</ul>
+
+<p>
+The constructor takes an optional <code>force</code> which disables all check.
+That&rsquo;s because the <code>repo_create()</code> function which we&rsquo;ll create later uses
+a <code>Repository</code> object to <i>create</i> the repo.  So we need a way to create
+repository even from (still) invalid filesystem locations.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitRepository</span>(<span class="org-builtin">object</span>):
+    <span class="org-doc">"""A git repository"""</span>
+
+    <span class="org-variable-name">worktree</span> = <span class="org-constant">None</span>
+    <span class="org-variable-name">gitdir</span> = <span class="org-constant">None</span>
+    <span class="org-variable-name">conf</span> = <span class="org-constant">None</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, path, force=<span class="org-constant">False</span>):
+        <span class="org-keyword">self</span>.worktree = path
+        <span class="org-keyword">self</span>.gitdir = os.path.join(path, <span class="org-string">".git"</span>)
+
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> (force <span class="org-keyword">or</span> os.path.isdir(<span class="org-keyword">self</span>.gitdir)):
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Not a Git repository %s"</span> % path)
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Read configuration file in .git/config</span>
+        <span class="org-keyword">self</span>.conf = configparser.ConfigParser()
+        <span class="org-variable-name">cf</span> = repo_file(<span class="org-keyword">self</span>, <span class="org-string">"config"</span>)
+
+        <span class="org-keyword">if</span> cf <span class="org-keyword">and</span> os.path.exists(cf):
+                <span class="org-keyword">self</span>.conf.read([cf])
+        <span class="org-keyword">elif</span> <span class="org-keyword">not</span> force:
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Configuration file missing"</span>)
+
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> force:
+            <span class="org-variable-name">vers</span> = <span class="org-builtin">int</span>(<span class="org-keyword">self</span>.conf.get(<span class="org-string">"core"</span>, <span class="org-string">"repositoryformatversion"</span>))
+            <span class="org-keyword">if</span> vers != 0:
+                <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Unsupported repositoryformatversion %s"</span> % vers)
+</pre>
+</div>
+
+<p>
+We&rsquo;re going to be manipulating <b>lots</b> of paths in repositories.  We may
+as well create a few utility functions to compute those paths and
+create missing directory structures if needed.  First, just a general
+path building function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">repo_path</span>(repo, *path):
+    <span class="org-doc">"""Compute path under repo's gitdir."""</span>
+    <span class="org-keyword">return</span> os.path.join(repo.gitdir, *path)
+</pre>
+</div>
+
+<p>
+The two next functions, <code>repo_file()</code> and <code>repo_dir()</code>, return and
+optionally create a path to a file or a directory, respectively.  The
+difference between them is that the file version only creates
+directories up to the last component.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">repo_file</span>(repo, *path, mkdir=<span class="org-constant">False</span>):
+    <span class="org-doc">"""Same as repo_path, but create dirname(*path) if absent.  For</span>
+<span class="org-doc">example, repo_file(r, \"refs\", \"remotes\", \"origin\", \"HEAD\") will create</span>
+<span class="org-doc">.git/refs/remotes/origin."""</span>
+
+    <span class="org-keyword">if</span> repo_dir(repo, *path[:-1], mkdir=mkdir):
+        <span class="org-keyword">return</span> repo_path(repo, *path)
+
+<span class="org-keyword">def</span> <span class="org-function-name">repo_dir</span>(repo, *path, mkdir=<span class="org-constant">False</span>):
+    <span class="org-doc">"""Same as repo_path, but mkdir *path if absent if mkdir."""</span>
+
+    <span class="org-variable-name">path</span> = repo_path(repo, *path)
+
+    <span class="org-keyword">if</span> os.path.exists(path):
+        <span class="org-keyword">if</span> (os.path.isdir(path)):
+            <span class="org-keyword">return</span> path
+        <span class="org-keyword">else</span>:
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Not a directory %s"</span> % path)
+
+    <span class="org-keyword">if</span> mkdir:
+        os.makedirs(path)
+        <span class="org-keyword">return</span> path
+    <span class="org-keyword">else</span>:
+        <span class="org-keyword">return</span> <span class="org-constant">None</span>
+</pre>
+</div>
+
+<p>
+To <b>create</b> a new repository, we start with a directory (which we create
+if doesn&rsquo;t already exist, or check for emptiness otherwise) and create
+the following paths:
+</p>
+
+<ul class="org-ul">
+<li><code>.git</code> is the git directory itself, which contains:
+<ul class="org-ul">
+<li><code>.git/objects/</code> : the object store, which we&rsquo;ll introduce <a href="#objects">in the next section</a>.</li>
+<li><code>.git/refs/</code> the reference store, which we&rsquo;ll discuss .
+It contains two subdirectories, <code>heads</code> and <code>tags</code>.</li>
+<li><code>.git/HEAD</code>, a reference to the current HEAD (more on that later!)</li>
+<li><code>.git/config</code>, the repository&rsquo;s configuration file.</li>
+<li><code>.git/description</code>, the repository&rsquo;s description file.</li>
+</ul></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">repo_create</span>(path):
+    <span class="org-doc">"""Create a new repository at path."""</span>
+
+    <span class="org-variable-name">repo</span> = GitRepository(path, <span class="org-constant">True</span>)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">First, we make sure the path either doesn't exist or is an</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">empty dir.</span>
+
+    <span class="org-keyword">if</span> os.path.exists(repo.worktree):
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> os.path.isdir(repo.worktree):
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span> (<span class="org-string">"%s is not a directory!"</span> % path)
+        <span class="org-keyword">if</span> os.listdir(repo.worktree):
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"%s is not empty!"</span> % path)
+    <span class="org-keyword">else</span>:
+        os.makedirs(repo.worktree)
+
+    <span class="org-keyword">assert</span>(repo_dir(repo, <span class="org-string">"branches"</span>, mkdir=<span class="org-constant">True</span>))
+    <span class="org-keyword">assert</span>(repo_dir(repo, <span class="org-string">"objects"</span>, mkdir=<span class="org-constant">True</span>))
+    <span class="org-keyword">assert</span>(repo_dir(repo, <span class="org-string">"refs"</span>, <span class="org-string">"tags"</span>, mkdir=<span class="org-constant">True</span>))
+    <span class="org-keyword">assert</span>(repo_dir(repo, <span class="org-string">"refs"</span>, <span class="org-string">"heads"</span>, mkdir=<span class="org-constant">True</span>))
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">.git/description</span>
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span>(repo_file(repo, <span class="org-string">"description"</span>), <span class="org-string">"w"</span>) <span class="org-keyword">as</span> f:
+        f.write(<span class="org-string">"Unnamed repository; edit this file 'description' to name the repository.\n"</span>)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">.git/HEAD</span>
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span>(repo_file(repo, <span class="org-string">"HEAD"</span>), <span class="org-string">"w"</span>) <span class="org-keyword">as</span> f:
+        f.write(<span class="org-string">"ref: refs/heads/master\n"</span>)
+
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span>(repo_file(repo, <span class="org-string">"config"</span>), <span class="org-string">"w"</span>) <span class="org-keyword">as</span> f:
+        <span class="org-variable-name">config</span> = repo_default_config()
+        config.write(f)
+
+    <span class="org-keyword">return</span> repo
+</pre>
+</div>
+
+<p>
+The configuration file is very simple, it&rsquo;s a INI-like file with a
+single section (<code>[core]</code>) and three fields:
+</p>
+
+<ul class="org-ul">
+<li><code>repositoryformatversion = 0</code>: the version of
+the gitdir format.  0 means the initial format, 1 the same with
+extensions.  If &gt; 1, git will panic; wyag will only accept 0.</li>
+<li><code>filemode = false</code>: disable tracking of file mode changes in the work tree.</li>
+</ul>
+
+<ul class="org-ul">
+<li><code>bare = false</code>: indicates that this repository has a worktree.  Git
+supports an optional <code>worktree</code> key which indicates the location of
+the worktree, if not <code>..</code>; wyag doesn&rsquo;t.</li>
+</ul>
+
+<p>
+We create this file using Python&rsquo;s <code>configparser</code> lib:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">repo_default_config</span>():
+    <span class="org-variable-name">ret</span> = configparser.ConfigParser()
+
+    ret.add_section(<span class="org-string">"core"</span>)
+    ret.<span class="org-builtin">set</span>(<span class="org-string">"core"</span>, <span class="org-string">"repositoryformatversion"</span>, <span class="org-string">"0"</span>)
+    ret.<span class="org-builtin">set</span>(<span class="org-string">"core"</span>, <span class="org-string">"filemode"</span>, <span class="org-string">"false"</span>)
+    ret.<span class="org-builtin">set</span>(<span class="org-string">"core"</span>, <span class="org-string">"bare"</span>, <span class="org-string">"false"</span>)
+
+    <span class="org-keyword">return</span> ret
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9a4c237" class="outline-3">
+<h3 id="cmd-init"><span class="section-number-3">3.2</span> The init command</h3>
+<div class="outline-text-3" id="text-cmd-init">
+<p>
+Now that we have code to read and create repositories, let&rsquo;s make this
+code usable from the command line by creating the <code>wyag init</code> command.
+<code>wyag init</code> behaves just like <code>git init</code> &#x2014; with much less possible
+customization, of course.  The syntax of <code>wyag init</code> is going to be:
+</p>
+
+<pre class="example">
+wyag init [path]
+</pre>
+
+<p>
+We already have the complete repository creation logic.  To create the
+command, we&rsquo;re only going to need two more things:
+</p>
+
+<ol class="org-ol">
+<li><p>
+We need to create an argparse subparser to handle our command&rsquo;s
+argument.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"init"</span>, <span class="org-builtin">help</span>=<span class="org-string">"Initialize a new, empty repository."</span>)
+</pre>
+</div>
+
+<p>
+In the case of <code>init</code>, there&rsquo;s a single, optional,
+positional argument: the path where to init the repo.  It defaults
+to <code>.</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">argsp.add_argument(<span class="org-string">"path"</span>,
+                   metavar=<span class="org-string">"directory"</span>,
+                   nargs=<span class="org-string">"?"</span>,
+                   default=<span class="org-string">"."</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Where to create the repository."</span>)
+</pre>
+</div></li>
+
+<li><p>
+We also need a &ldquo;bridge&rdquo; function that will read argument values
+from the object returned by argparse and call the actual
+function with correct values.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_init</span>(args):
+    repo_create(args.path)
+</pre>
+</div></li>
+</ol>
+
+<p>
+And we&rsquo;re done!  If you&rsquo;ve followed these steps, you should now be
+able to <code>wayg init</code> a git repository anywhere.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7d04050" class="outline-3">
+<h3 id="org7d04050"><span class="section-number-3">3.3</span> The repo_find() function</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+While we&rsquo;re implementing repositories, there&rsquo;s a function we&rsquo;re going
+to need a lot later: Almost all Git functions <code>init</code> use an existing
+repository.  It&rsquo;s often in the current directory, but it may be in a
+parent instead: your repository&rsquo;s root may be in
+<code>~/Documents/MyProject</code>, but you may currently be in
+<code>~/Documents/MyProject/src/tui/frames/mainview/</code>.  The <code>repo_find()</code>
+function we&rsquo;ll now create will look for a repository, starting at
+current directory and recursing back until <code>/</code>.  To identify something
+as a repo, it will check for the presence of a <code>.git</code> directory.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">repo_find</span>(path=<span class="org-string">"."</span>, required=<span class="org-constant">True</span>):
+    <span class="org-variable-name">path</span> = os.path.realpath(path)
+
+    <span class="org-keyword">if</span> os.path.isdir(os.path.join(path, <span class="org-string">".git"</span>)):
+        <span class="org-keyword">return</span> GitRepository(path)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">If we haven't returned, recurse in parent, if w</span>
+    <span class="org-variable-name">parent</span> = os.path.realpath(os.path.join(path, <span class="org-string">".."</span>))
+
+    <span class="org-keyword">if</span> parent == path:
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Bottom case</span>
+        <span class="org-comment-delimiter"># </span><span class="org-comment">os.path.join("/", "..") == "/":</span>
+        <span class="org-comment-delimiter"># </span><span class="org-comment">If parent==path, then path is root.</span>
+        <span class="org-keyword">if</span> required:
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"No git directory."</span>)
+        <span class="org-keyword">else</span>:
+            <span class="org-keyword">return</span> <span class="org-constant">None</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Recursive case</span>
+    <span class="org-keyword">return</span> repo_find(parent, required)
+</pre>
+</div>
+
+<p>
+And we&rsquo;re done with repositories!
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org71c0848" class="outline-2">
+<h2 id="objects"><span class="section-number-2">4</span> Reading and writing objects: hash-object and cat-file</h2>
+<div class="outline-text-2" id="text-objects">
+</div>
+
+<div id="outline-container-org73cbeb2" class="outline-3">
+<h3 id="org73cbeb2"><span class="section-number-3">4.1</span> What are objects?</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+Now that we have repositories, putting things inside them is in order.
+Also, repositories are boring, and writing a Git implementation
+shouldn&rsquo;t be just a matter of writing a bunch of <code>mkdir</code>.  Let&rsquo;s talk
+about <b>objects</b>, and let&rsquo;s implement <code>git hash-object</code> and <code>git cat-file</code>.
+</p>
+
+<p>
+Maybe you don&rsquo;t know these two commands &#x2014; they&rsquo;re not exactly part
+of an everyday git toolbox, and they&rsquo;re actually quite low-level
+(&ldquo;plumbing&rdquo;, in git parlance).  What they do is actually very simple:
+<code>hash-object</code> converts an existing file into a git object, and <code>cat-file</code>
+prints an existing git object to the standard output.
+</p>
+
+<p>
+Now, <b>what actually is a Git object?</b>  At its core, Git is a
+&ldquo;content-addressed filesystem&rdquo;.  That means that unlike regular
+filesystems, where the name of a file is arbitrary and unrelated to
+that file&rsquo;s contents, the names of files as stored by Git are
+mathematically derived from their contents.  This has a very important
+implication: if a single byte of, say, a text file, changes, its
+internal name will change, too.  To put it simply: you don&rsquo;t <i>modify</i> a
+file, you create a new file in a different location.  Objects are just
+that: files in the git repository, whose path is determined by their
+contents.
+</p>
+
+<div class="warning">
+<p>
+<b>Git is not (really) a key-value store</b>
+</p>
+
+<p>
+Some documentation, including the excellent <a href="https://git-scm.com/book/id/v2/Git-Internals-Git-Objects">Pro Git</a>, call Git a
+&ldquo;key-value store&rdquo;.  This is not incorrect, but may be misleading.
+Regular filesystems are actually closer to a key-value store than Git
+is.  Because it computes keys from data, Git should rather be called a
+<i>value-value store</i>.
+</p>
+
+</div>
+
+<p>
+Git uses objects to store quite a lot of things: first and foremost,
+the actual files it keeps in version control &#x2014; source code, for
+example.  Commit are objects, too, as well as tags.  With a few
+notable exceptions (which we&rsquo;ll see later!), almost everything, in
+Git, is stored as an object.
+</p>
+
+<p>
+The path is computed by calculating the <a href="https://en.wikipedia.org/wiki/SHA-1">SHA-1</a> <a href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">hash</a> of its contents.
+More precisely, Git renders the hash as a lowercase hexadecimal
+string, and splits it in two parts: the first two characters, and the
+rest.  It uses the first part as a directory name, the rest as the
+file name (this is because most filesystems hate having too many files
+in a single directory and would slow down to a crawl.  Git&rsquo;s method
+creates 256 possible intermediate directories, hence dividing the
+average number of files per directory by 256)
+</p>
+
+<div class="note">
+<p>
+<b>What is a hash function?</b>
+</p>
+
+<p>
+Simply put, a hash function is a kind of unidirectional mathematical
+function: it is easy to compute the hash of a value, but there&rsquo;s no
+way to compute which value produced a hash.  A very simple example of
+a hash function is the <code>strlen</code> function.  It&rsquo;s really easy to compute
+the length of a string, and the length of a given string will never
+change (unless the string itself changes, of course!) but it&rsquo;s
+impossible to retrieve the original string, given only its length.
+<i>Cryptographic</i> hash functions are just a much more complex version of
+the same, with the added property that computing an input meant to
+produce a given hash is hard enough to be
+practically impossible.  (With <code>strlen</code>, producing an input <code>i</code> with
+<code>strlen(i) == 12</code>, you just have to type twelve random characters.  With
+algorithms such as SHA-1. it would take much, much longer &#x2014; long
+enough to be practically impossible<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>.
+</p>
+
+</div>
+
+<p>
+Before we start implementing the object storage system, we must
+understand their exact storage format.  An object starts with a header
+that specifies its type: <code>blob</code>, <code>commit</code>, <code>tag</code> or <code>tree</code>.  This header is
+followed by an ASCII space (0x20), then the size of the object in bytes as an
+ASCII number, then null (0x00) (the null byte), then the contents of the
+object.  The first 48 bytes of a commit object in Wyag&rsquo;s repo look like this:
+</p>
+
+<pre class="example">
+00000000  63 6f 6d 6d 69 74 20 31  30 38 36 00 74 72 65 65  |commit 1086.tree|
+00000010  20 32 39 66 66 31 36 63  39 63 31 34 65 32 36 35  | 29ff16c9c14e265|
+00000020  32 62 32 32 66 38 62 37  38 62 62 30 38 61 35 61  |2b22f8b78bb08a5a|
+</pre>
+
+<p>
+In the first line, we see the type header, a space (<code>0x20</code>), the size in
+ASCII (1086) and the null separator <code>0x00</code>.  The last four bytes on the
+first line are the beginning of that object&rsquo;s contents, the word
+&ldquo;tree&rdquo; &#x2014; we&rsquo;ll discuss that further when we&rsquo;ll talk about commits.
+</p>
+
+<p>
+The objects (headers and contents) are stored compressed with <code>zlib</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org78c29dd" class="outline-3">
+<h3 id="org78c29dd"><span class="section-number-3">4.2</span> A generic object object</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+Objects can be of multiple types, but they all share the same
+storage/retrieval mechanism and the same general header format.
+Before we dive into the details of various types of objects, we need
+to abstract over these common features.  The easiest way is to create
+a generic <code>GitObject</code> with two unimplemented methods: <code>serialize()</code> and
+<code>deserialize()</code>.  Later, we&rsquo;ll subclass this generic class, actually
+implementing these functions for each object format.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitObject</span> (<span class="org-builtin">object</span>):
+
+    <span class="org-variable-name">repo</span> = <span class="org-constant">None</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, repo, data=<span class="org-constant">None</span>):
+        <span class="org-keyword">self</span>.repo=repo
+
+        <span class="org-keyword">if</span> data != <span class="org-constant">None</span>:
+            <span class="org-keyword">self</span>.deserialize(data)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">serialize</span>(<span class="org-keyword">self</span>):
+        <span class="org-doc">"""This function MUST be implemented by subclasses.</span>
+
+<span class="org-doc">It must read the object's contents from self.data, a byte string, and do</span>
+<span class="org-doc">whatever it takes to convert it into a meaningful representation.  What exactly that means depend on each subclass."""</span>
+        <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Unimplemented!"</span>)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">deserialize</span>(<span class="org-keyword">self</span>, data):
+        <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Unimplemented!"</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org8f9d097" class="outline-3">
+<h3 id="org8f9d097"><span class="section-number-3">4.3</span> Reading objects</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+To read an object, we need to know its hash.  We then compute its path
+from this hash (with the formula explained above: first two
+characters, then a directory delimiter <code>/</code>, then the remaining part) and
+look it up inside of the &ldquo;objects&rdquo; directory in the gitdir.  That is,
+the path to <code>e673d1b7eaa0aa01b5bc2442d570a765bdaae751</code> is
+<code>.git/objects/e6/73d1b7eaa0aa01b5bc2442d570a765bdaae751</code>.
+</p>
+
+<p>
+We then read that file as a binary file, and decompress it using
+<code>zlib</code>.
+</p>
+
+<p>
+From the decompressed data, we extract the two header components: the
+object type and its size.   From the type, we determine the actual
+class to use.   We convert the size to a Python integer, and check if
+it matches.
+</p>
+
+<p>
+When all is done, we just call the correct constructor for that
+object&rsquo;s format.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_read</span>(repo, sha):
+    <span class="org-doc">"""Read object object_id from Git repository repo.  Return a</span>
+<span class="org-doc">    GitObject whose exact type depends on the object."""</span>
+
+    <span class="org-variable-name">path</span> = repo_file(repo, <span class="org-string">"objects"</span>, sha[0:2], sha[2:])
+
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span> (path, <span class="org-string">"rb"</span>) <span class="org-keyword">as</span> f:
+        <span class="org-variable-name">raw</span> = zlib.decompress(f.read())
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Read object type</span>
+        <span class="org-variable-name">x</span> = raw.find(b<span class="org-string">' '</span>)
+        <span class="org-variable-name">fmt</span> = raw[0:x]
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Read and validate object size</span>
+        <span class="org-variable-name">y</span> = raw.find(b<span class="org-string">'\x00'</span>, x)
+        <span class="org-variable-name">size</span> = <span class="org-builtin">int</span>(raw[x:y].decode(<span class="org-string">"ascii"</span>))
+        <span class="org-keyword">if</span> size != <span class="org-builtin">len</span>(raw)-y-1:
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Malformed object {0}: bad length"</span>.<span class="org-builtin">format</span>(sha))
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Pick constructor</span>
+        <span class="org-keyword">if</span>   fmt==b<span class="org-string">'commit'</span> : <span class="org-variable-name">c</span>=GitCommit
+        <span class="org-keyword">elif</span> fmt==b<span class="org-string">'tree'</span>   : <span class="org-variable-name">c</span>=GitTree
+        <span class="org-keyword">elif</span> fmt==b<span class="org-string">'tag'</span>    : <span class="org-variable-name">c</span>=GitTag
+        <span class="org-keyword">elif</span> fmt==b<span class="org-string">'blob'</span>   : <span class="org-variable-name">c</span>=GitBlob
+        <span class="org-keyword">else</span>:
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Unknown type %s for object %s"</span>.<span class="org-builtin">format</span>(fmt.decode(<span class="org-string">"ascii"</span>), sha))
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Call constructor and return object</span>
+        <span class="org-keyword">return</span> c(repo, raw[y+1:])
+</pre>
+</div>
+
+<p>
+<a id="org20a025b"></a> We haven&rsquo;t introduced the <code>object_find</code> function yet.  It&rsquo;s actually a
+placeholder, and looks like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_find</span>(repo, name, fmt=<span class="org-constant">None</span>, follow=<span class="org-constant">True</span>):
+    <span class="org-keyword">return</span> name
+</pre>
+</div>
+
+<p>
+The reason for this strange small function is that Git has a <i>lot</i> of
+ways to refer to objects: full hash, short hash, tags&#x2026;
+<code>object_find()</code> will be our name resolution function.  We&rsquo;ll only
+implement it <a href="#func-object_find">later</a>, so this is a temporary placeholder.  This means
+that until we implement the real thing, the only way we can refer to
+an object will be by its full hash.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7e5f74a" class="outline-3">
+<h3 id="org7e5f74a"><span class="section-number-3">4.4</span> Writing objects</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+Writing an object is reading it in reverse: we compute the hash,
+insert the header, zlib-compress everything and write the result in
+place.  This really shouldn&rsquo;t require much explanation, just notice
+that the hash is computed <b>after</b> the header is added.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_write</span>(obj, actually_write=<span class="org-constant">True</span>):
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Serialize object data</span>
+    <span class="org-variable-name">data</span> = obj.serialize()
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Add header</span>
+    <span class="org-variable-name">result</span> = obj.fmt + b<span class="org-string">' '</span> + <span class="org-builtin">str</span>(<span class="org-builtin">len</span>(data)).encode() + b<span class="org-string">'\x00'</span> + data
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Compute hash</span>
+    <span class="org-variable-name">sha</span> = hashlib.sha1(result).hexdigest()
+
+    <span class="org-keyword">if</span> actually_write:
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Compute path</span>
+        <span class="org-variable-name">path</span>=repo_file(obj.repo, <span class="org-string">"objects"</span>, sha[0:2], sha[2:], mkdir=actually_write)
+
+        <span class="org-keyword">with</span> <span class="org-builtin">open</span>(path, <span class="org-string">'wb'</span>) <span class="org-keyword">as</span> f:
+            <span class="org-comment-delimiter"># </span><span class="org-comment">Compress and write</span>
+            f.write(zlib.compress(result))
+
+    <span class="org-keyword">return</span> sha
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org469761c" class="outline-3">
+<h3 id="org469761c"><span class="section-number-3">4.5</span> Working with blobs</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+Of the four Git object types, blobs are the simplest, because they
+have no actual format.  Blobs are user content: every file you put in
+git is stored as a blob.  That make them easy to manipulate, because
+they have no actual syntax or constraints beyond the basic object
+storage mechanism: they&rsquo;re just unspecified data.  Creating a <code>GitBlob</code>
+class is thus trivial, the <code>serialize</code> and <code>deserialize</code> functions just
+have to store and return their input unmodified.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitBlob</span>(GitObject):
+    <span class="org-variable-name">fmt</span>=b<span class="org-string">'blob'</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">serialize</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">return</span> <span class="org-keyword">self</span>.blobdata
+
+    <span class="org-keyword">def</span> <span class="org-function-name">deserialize</span>(<span class="org-keyword">self</span>, data):
+        <span class="org-keyword">self</span>.blobdata = data
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org2c42f27" class="outline-3">
+<h3 id="cmd-cat-file"><span class="section-number-3">4.6</span> The cat-file command</h3>
+<div class="outline-text-3" id="text-cmd-cat-file">
+<p>
+With all that, we can now create <code>wyag cat-file</code>.  The basic syntax of
+<code>git cat-file</code> is just two positional arguments: a type and an object identifier:
+</p>
+
+<pre class="example">
+git cat-file TYPE OBJECT
+</pre>
+
+<p>
+The subparser is very simple:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"cat-file"</span>,
+                                 <span class="org-builtin">help</span>=<span class="org-string">"Provide content of repository objects"</span>)
+
+argsp.add_argument(<span class="org-string">"type"</span>,
+                   metavar=<span class="org-string">"type"</span>,
+                   choices=[<span class="org-string">"blob"</span>, <span class="org-string">"commit"</span>, <span class="org-string">"tag"</span>, <span class="org-string">"tree"</span>],
+                   <span class="org-builtin">help</span>=<span class="org-string">"Specify the type"</span>)
+
+argsp.add_argument(<span class="org-string">"object"</span>,
+                   metavar=<span class="org-string">"object"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"The object to display"</span>)
+</pre>
+</div>
+
+<p>
+And the functions themselves shouldn&rsquo;t need any explanation, they just
+call into already written logic:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_cat_file</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+    cat_file(repo, args.<span class="org-builtin">object</span>, fmt=args.<span class="org-builtin">type</span>.encode())
+
+<span class="org-keyword">def</span> <span class="org-function-name">cat_file</span>(repo, obj, fmt=<span class="org-constant">None</span>):
+    <span class="org-variable-name">obj</span> = object_read(repo, object_find(repo, obj, fmt=fmt))
+    sys.stdout.<span class="org-builtin">buffer</span>.write(obj.serialize())
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdfed300" class="outline-3">
+<h3 id="cmd-hash-object"><span class="section-number-3">4.7</span> The hash-object command</h3>
+<div class="outline-text-3" id="text-cmd-hash-object">
+<p>
+<code>hash-object</code> is basically the opposite of <code>cat-file</code>: it reads a file,
+computes its hash as an object, either storing it in the
+repository (if the -w flag is passed) or just printing its hash.
+</p>
+
+<p>
+The basic syntax of <code>git hash-object</code> looks like this:
+</p>
+
+<pre class="example">
+git hash-object [-w] [-t TYPE] FILE
+</pre>
+
+<p>
+Which converts to:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(
+    <span class="org-string">"hash-object"</span>,
+    <span class="org-builtin">help</span>=<span class="org-string">"Compute object ID and optionally creates a blob from a file"</span>)
+
+argsp.add_argument(<span class="org-string">"-t"</span>,
+                   metavar=<span class="org-string">"type"</span>,
+                   dest=<span class="org-string">"type"</span>,
+                   choices=[<span class="org-string">"blob"</span>, <span class="org-string">"commit"</span>, <span class="org-string">"tag"</span>, <span class="org-string">"tree"</span>],
+                   default=<span class="org-string">"blob"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Specify the type"</span>)
+
+argsp.add_argument(<span class="org-string">"-w"</span>,
+                   dest=<span class="org-string">"write"</span>,
+                   action=<span class="org-string">"store_true"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Actually write the object into the database"</span>)
+
+argsp.add_argument(<span class="org-string">"path"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Read object from &lt;file&gt;"</span>)
+</pre>
+</div>
+
+<p>
+The actual implementation is very simple.  As usual, we create a small
+bridge function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_hash_object</span>(args):
+    <span class="org-keyword">if</span> args.write:
+        <span class="org-variable-name">repo</span> = GitRepository(<span class="org-string">"."</span>)
+    <span class="org-keyword">else</span>:
+        <span class="org-variable-name">repo</span> = <span class="org-constant">None</span>
+
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span>(args.path, <span class="org-string">"rb"</span>) <span class="org-keyword">as</span> fd:
+        <span class="org-variable-name">sha</span> = object_hash(fd, args.<span class="org-builtin">type</span>.encode(), repo)
+        <span class="org-keyword">print</span>(sha)
+</pre>
+</div>
+
+<p>
+and the actual implementation.  The repo argument is optional:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_hash</span>(fd, fmt, repo=<span class="org-constant">None</span>):
+    <span class="org-variable-name">data</span> = fd.read()
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Choose constructor depending on</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">object type found in header.</span>
+    <span class="org-keyword">if</span>   fmt==b<span class="org-string">'commit'</span> : <span class="org-variable-name">obj</span>=GitCommit(repo, data)
+    <span class="org-keyword">elif</span> fmt==b<span class="org-string">'tree'</span>   : <span class="org-variable-name">obj</span>=GitTree(repo, data)
+    <span class="org-keyword">elif</span> fmt==b<span class="org-string">'tag'</span>    : <span class="org-variable-name">obj</span>=GitTag(repo, data)
+    <span class="org-keyword">elif</span> fmt==b<span class="org-string">'blob'</span>   : <span class="org-variable-name">obj</span>=GitBlob(repo, data)
+    <span class="org-keyword">else</span>:
+        <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Unknown type %s!"</span> % fmt)
+
+    <span class="org-keyword">return</span> object_write(obj, repo)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org05702f5" class="outline-3">
+<h3 id="packfiles"><span class="section-number-3">4.8</span> What about packfiles?</h3>
+<div class="outline-text-3" id="text-packfiles">
+<p>
+What we&rsquo;ve just implemented is called &ldquo;loose objects&rdquo;.  Git has a
+second object storage mechanism called packfiles.  Packfiles are much
+more efficient, but also much more complex, than loose objects.  And
+aren&rsquo;t worth implementing in <code>wyag</code>.  Simply put, a packfile is a
+compilation of loose objects (like a <code>tar</code>) but some are stored as
+deltas (as a transformation of another object).  Packfiles are way too
+complex to be supported by wyag.
+</p>
+
+<p>
+The packfile is stored in <code>.git/objects/pack/</code>.  It has a <code>.pack</code>
+extension, and is accompanied by an index file of the same name with
+the <code>.idx</code> extension.  Should you want to convert a packfile to loose
+objects format (to play with <code>wyag</code> on an existing repo, for example),
+here&rsquo;s the solution.
+</p>
+
+<p>
+First, <i>move</i> the packfile outside the gitdir.  Copying it,
+you have to move it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">mv .git/objects/pack/pack-d9ef004d4ca729287f12aaaacf36fee39baa7c9d.pack .
+</pre>
+</div>
+
+<p>
+You can ignore the <code>.idx</code>.  Then, from the worktree, just <code>cat</code> it and pipe the result to <code>git
+unpack-objects</code>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">cat pack-d9ef004d4ca729287f12aaaacf36fee39baa7c9d.pack | git unpack-objects
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org77c49fe" class="outline-2">
+<h2 id="org77c49fe"><span class="section-number-2">5</span> Reading commit history: log</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-org421331c" class="outline-3">
+<h3 id="org421331c"><span class="section-number-3">5.1</span> Parsing commits</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+Now that we can read and write objects, we should consider commits.
+A commit object (uncompressed, without headers) looks like this:
+</p>
+
+<pre class="example">
+tree 29ff16c9c14e2652b22f8b78bb08a5a07930c147
+parent 206941306e8a8af65b66eaaaea388a7ae24d49a0
+author Thibault Polge &lt;thibault@thb.lt&gt; 1527025023 +0200
+committer Thibault Polge &lt;thibault@thb.lt&gt; 1527025044 +0200
+gpgsig -----BEGIN PGP SIGNATURE-----
+
+ iQIzBAABCAAdFiEExwXquOM8bWb4Q2zVGxM2FxoLkGQFAlsEjZQACgkQGxM2FxoL
+ kGQdcBAAqPP+ln4nGDd2gETXjvOpOxLzIMEw4A9gU6CzWzm+oB8mEIKyaH0UFIPh
+ rNUZ1j7/ZGFNeBDtT55LPdPIQw4KKlcf6kC8MPWP3qSu3xHqx12C5zyai2duFZUU
+ wqOt9iCFCscFQYqKs3xsHI+ncQb+PGjVZA8+jPw7nrPIkeSXQV2aZb1E68wa2YIL
+ 3eYgTUKz34cB6tAq9YwHnZpyPx8UJCZGkshpJmgtZ3mCbtQaO17LoihnqPn4UOMr
+ V75R/7FjSuPLS8NaZF4wfi52btXMSxO/u7GuoJkzJscP3p4qtwe6Rl9dc1XC8P7k
+ NIbGZ5Yg5cEPcfmhgXFOhQZkD0yxcJqBUcoFpnp2vu5XJl2E5I/quIyVxUXi6O6c
+ /obspcvace4wy8uO0bdVhc4nJ+Rla4InVSJaUaBeiHTW8kReSFYyMmDCzLjGIu1q
+ doU61OM3Zv1ptsLu3gUE6GU27iWYj2RWN3e3HE4Sbd89IFwLXNdSuM0ifDLZk7AQ
+ WBhRhipCCgZhkj9g2NEk7jRVslti1NdN5zoQLaJNqSwO1MtxTmJ15Ksk3QP6kfLB
+ Q52UWybBzpaP9HEd4XnR+HuQ4k2K0ns2KgNImsNvIyFwbpMUyUWLMPimaV1DWUXo
+ 5SBjDB/V/W2JBFR+XKHFJeFwYhj7DD/ocsGr4ZMx/lgc8rjIBkI=
+ =lgTX
+ -----END PGP SIGNATURE-----
+
+Create first draft
+</pre>
+
+<p>
+The format is a simplified version of mail messages, as specified in
+<a href="https://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a>.  It begins with a series of key-value pairs, with space as
+the key/value separator, and ends with the commit message, that may
+span over multiple lines.  Values may continue over multiple lines,
+subsequent lines start with a space which the parser must drop.
+</p>
+
+<p>
+Let&rsquo;s have a look at those fields:
+</p>
+
+<ul class="org-ul">
+<li><code>tree</code> is a reference to a tree object, a type of object that we&rsquo;ll
+see soon.  A tree maps blobs IDs to filesystem locations, and
+describes a state of the work tree.  Put simply, it is
+the actual content of the commit: files, and where they go.</li>
+<li><code>parent</code> is a reference to the parent of this commit.  It may be
+repeated: merge commits, for example, have multiple parents.  It
+may also be absent: the very first commit in a repository obviously
+doesn&rsquo;t have a parent.</li>
+<li><code>author</code> and <code>committer</code> are separate, because the author of a commit
+is not necessarily the person who can commit it (This may not be
+obvious for GitHub users, but a lot of projects do Git through e-mail)</li>
+<li><code>gpgsig</code> is the PGP signature of this object.</li>
+</ul>
+
+<p>
+We&rsquo;ll start by writing a simple parser for the format.  The code is
+obvious.  The name of the function we&rsquo;re about to create,
+<code>kvlm_parse()</code>, may be confusing: it isn&rsquo;t called <code>commit_parse()</code> because
+tags have the very same format, so we&rsquo;ll use it for both objects types.
+I use KVLM to mean &ldquo;Key-Value List with Message&rdquo;.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">kvlm_parse</span>(raw, start=0, dct=<span class="org-constant">None</span>):
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> dct:
+        <span class="org-variable-name">dct</span> = collections.OrderedDict()
+        <span class="org-comment-delimiter"># </span><span class="org-comment">You CANNOT declare the argument as dct=OrderedDict() or all</span>
+        <span class="org-comment-delimiter"># </span><span class="org-comment">call to the functions will endlessly grow the same dict.</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">We search for the next space and the next newline.</span>
+    <span class="org-variable-name">spc</span> = raw.find(b<span class="org-string">' '</span>, start)
+    <span class="org-variable-name">nl</span> = raw.find(b<span class="org-string">'\n'</span>, start)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">If space appears before newline, we have a keyword.</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Base case</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">=========</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">If newline appears first (or there's no space at all, in which</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">case find returns -1), we assume a blank line.  A blank line</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">means the remainder of the data is the message.</span>
+    <span class="org-keyword">if</span> (spc &lt; 0) <span class="org-keyword">or</span> (nl &lt; spc):
+        <span class="org-keyword">assert</span>(nl == start)
+        <span class="org-variable-name">dct</span>[b<span class="org-string">''</span>] = raw[start+1:]
+        <span class="org-keyword">return</span> dct
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Recursive case</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">==============</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">we read a key-value pair and recurse for the next.</span>
+    <span class="org-variable-name">key</span> = raw[start:spc]
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Find the end of the value.  Continuation lines begin with a</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">space, so we loop until we find a "\n" not followed by a space.</span>
+    <span class="org-variable-name">end</span> = start
+    <span class="org-keyword">while</span> <span class="org-constant">True</span>:
+        <span class="org-variable-name">end</span> = raw.find(b<span class="org-string">'\n'</span>, end+1)
+        <span class="org-keyword">if</span> raw[end+1] != <span class="org-builtin">ord</span>(<span class="org-string">' '</span>): <span class="org-keyword">break</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Grab the value</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Also, drop the leading space on continuation lines</span>
+    <span class="org-variable-name">value</span> = raw[spc+1:end].replace(b<span class="org-string">'\n '</span>, b<span class="org-string">'\n'</span>)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Don't overwrite existing data contents</span>
+    <span class="org-keyword">if</span> key <span class="org-keyword">in</span> dct:
+        <span class="org-keyword">if</span> <span class="org-builtin">type</span>(dct[key]) == <span class="org-builtin">list</span>:
+            dct[key].append(value)
+        <span class="org-keyword">else</span>:
+            <span class="org-variable-name">dct</span>[key] = [ dct[key], value ]
+    <span class="org-keyword">else</span>:
+        <span class="org-variable-name">dct</span>[key]=value
+
+    <span class="org-keyword">return</span> kvlm_parse(raw, start=end+1, dct=dct)
+</pre>
+</div>
+
+<p>
+We use an <code>OrderedDict</code> here because <code>cat-file</code>, as we&rsquo;ve implemented it,
+will print a commit object by parsing it and re-serializing it, so we
+need fields to be in the exact same order they were defined.  Also, in
+Git, the order keys appear in commit and tag object seem to matter.
+</p>
+
+<p>
+We&rsquo;re going to need to write similar objects, so let&rsquo;s add a
+<code>kvlm_serialize()</code> function to our toolkit.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">kvlm_serialize</span>(kvlm):
+    <span class="org-variable-name">ret</span> = b<span class="org-string">''</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Output fields</span>
+    <span class="org-keyword">for</span> k <span class="org-keyword">in</span> kvlm.keys():
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Skip the message itself</span>
+        <span class="org-keyword">if</span> k == b<span class="org-string">''</span>: <span class="org-keyword">continue</span>
+        <span class="org-variable-name">val</span> = kvlm[k]
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Normalize to a list</span>
+        <span class="org-keyword">if</span> <span class="org-builtin">type</span>(val) != <span class="org-builtin">list</span>:
+            <span class="org-variable-name">val</span> = [ val ]
+
+        <span class="org-keyword">for</span> v <span class="org-keyword">in</span> val:
+            <span class="org-variable-name">ret</span> += k + b<span class="org-string">' '</span> + (v.replace(b<span class="org-string">'\n'</span>, b<span class="org-string">'\n '</span>)) + b<span class="org-string">'\n'</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Append message</span>
+    <span class="org-variable-name">ret</span> += b<span class="org-string">'\n'</span> + kvlm[b<span class="org-string">''</span>]
+
+    <span class="org-keyword">return</span> ret
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgd3c360a" class="outline-3">
+<h3 id="orgd3c360a"><span class="section-number-3">5.2</span> The Commit object</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+Now we have the parser, we can create the <code>GitCommit</code> class:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitCommit</span>(GitObject):
+    <span class="org-variable-name">fmt</span>=b<span class="org-string">'commit'</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">deserialize</span>(<span class="org-keyword">self</span>, data):
+        <span class="org-keyword">self</span>.kvlm = kvlm_parse(data)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">serialize</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">return</span> kvlm_serialize(<span class="org-keyword">self</span>.kvlm)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9ea2708" class="outline-3">
+<h3 id="cmd-log"><span class="section-number-3">5.3</span> The log command</h3>
+<div class="outline-text-3" id="text-cmd-log">
+<p>
+We&rsquo;ll implement a much, much simpler version of <code>log</code> than what Git
+provides.  Most importantly, we won&rsquo;t deal with representing the log
+<i>at all</i>.  Instead, we&rsquo;ll dump Graphviz data and let the user use <code>dot</code> to
+render the actual log.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"log"</span>, <span class="org-builtin">help</span>=<span class="org-string">"Display history of a given commit."</span>)
+argsp.add_argument(<span class="org-string">"commit"</span>,
+                   default=<span class="org-string">"HEAD"</span>,
+                   nargs=<span class="org-string">"?"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Commit to start at."</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_log</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+
+    <span class="org-keyword">print</span>(<span class="org-string">"digraph wyaglog{"</span>)
+    log_graphviz(repo, object_find(repo, args.commit), <span class="org-builtin">set</span>())
+    <span class="org-keyword">print</span>(<span class="org-string">"}"</span>)
+
+<span class="org-keyword">def</span> <span class="org-function-name">log_graphviz</span>(repo, sha, seen):
+
+    <span class="org-keyword">if</span> sha <span class="org-keyword">in</span> seen:
+        <span class="org-keyword">return</span>
+    seen.add(sha)
+
+    <span class="org-variable-name">commit</span> = object_read(repo, sha)
+    <span class="org-keyword">assert</span> (commit.fmt==b<span class="org-string">'commit'</span>)
+
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> b<span class="org-string">'parent'</span> <span class="org-keyword">in</span> commit.kvlm.keys():
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Base case: the initial commit.</span>
+        <span class="org-keyword">return</span>
+
+    <span class="org-variable-name">parents</span> = commit.kvlm[b<span class="org-string">'parent'</span>]
+
+    <span class="org-keyword">if</span> <span class="org-builtin">type</span>(parents) != <span class="org-builtin">list</span>:
+        <span class="org-variable-name">parents</span> = [ parents ]
+
+    <span class="org-keyword">for</span> p <span class="org-keyword">in</span> parents:
+        <span class="org-variable-name">p</span> = p.decode(<span class="org-string">"ascii"</span>)
+        <span class="org-keyword">print</span> (<span class="org-string">"c_{0} -&gt; c_{1};"</span>.<span class="org-builtin">format</span>(sha, p))
+        log_graphviz(repo, p, seen)
+</pre>
+</div>
+
+<p>
+You can now use our log command like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">wyag log e03158242ecab460f31b0d6ae1642880577ccbe8 &gt; log.dot
+dot -O -Tpdf log.dot
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgea3fb85" class="outline-3">
+<h3 id="orgea3fb85"><span class="section-number-3">5.4</span> Anatomy of a commit</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+You may have noticed a few things right now.
+</p>
+
+<p>
+First and foremost, we&rsquo;ve been playing with commits, browsing and
+walking through commit objects, building a graph of commit history,
+without ever touching a single file in the worktree or a blob.  We&rsquo;ve
+done a lot with commits <i>without considering their contents</i>.  This is
+important: work tree contents are just a part of a commit.  But a
+commit is made of everything: its contents, its authors, and also its
+parents.  If you remember that the ID (the SHA-1 hash) of a commit is
+computed from the whole commit object, you&rsquo;ll understand what it means
+that commits are immutable: if you change the author, the parent
+commit or a single file, you&rsquo;ve actually created a new, different
+object.  Each and every commit is bound to its place and its
+relationship to the whole repository up to the very first commit.  To
+put it otherwise, a given commit ID not only identifies some file
+contents, but it also binds the commit to its whole history and to the
+whole repository.
+</p>
+
+<p>
+It&rsquo;s also worth noting that from the point of view of a commit, time
+runs backwards: we&rsquo;re used to considering the history of a project
+from its humble beginnings as an evening distraction, starting with a
+few lines of code, some initial commits, and progressing to its
+present state (millions of lines of code, dozens of contributors,
+whatever).  But each commit is completely unaware of its future,
+it&rsquo;s only linked to the past.  Commits have &ldquo;memory&rdquo;, but no
+premonition.
+</p>
+
+<div class="note">
+<p>
+In Terry Pratchett&rsquo;s Discworld, trolls believe they progress in time
+from the future to the past.  The reasoning behind that belief is that
+when you walk, what you can see is what&rsquo;s <i>ahead</i> of you.  Of time, all
+you can perceive is the past, because you remember; hence it&rsquo;s where
+you&rsquo;re headed.  Git was written by a Discworld troll.
+</p>
+
+</div>
+
+<p>
+So what makes a commit?  To sum it up:
+</p>
+
+<ul class="org-ul">
+<li>A tree object, which we&rsquo;ll discuss now, that is, the contents of a
+worktree, files and directories;</li>
+<li>Zero, one or more parents;</li>
+<li>An author identity (name and email);</li>
+<li>A committer identity (name and email);</li>
+<li>An optional PGP signature</li>
+<li>A message;</li>
+</ul>
+
+<p>
+All this hashed together in a SHA-1 identifier.
+</p>
+
+<div class="note">
+<p>
+<b>Wait, does that make Git a blockchain?</b>
+</p>
+
+<p>
+Because of cryptocurrencies, blockchains are all the hype these days.
+And yes, <i>in a way</i>, Git is a blockchain: it&rsquo;s a sequence of blocks
+(commits) tied together by cryptographic means in a way that guarantee
+that each single element is associated to the whole history of the
+structure.  Don&rsquo;t take the comparison too seriously, though: we don&rsquo;t
+need a GitCoin.  Really, we don&rsquo;t.
+</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge2022b2" class="outline-2">
+<h2 id="orge2022b2"><span class="section-number-2">6</span> Reading commit data: checkout</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+It&rsquo;s all well that commits hold a lot more than files and directories
+in a given state, but that doesn&rsquo;t make them really useful.  It&rsquo;s
+probably time to start implementing tree objects as well, so we&rsquo;ll be
+able to checkout commits into the work tree.
+</p>
+</div>
+
+<div id="outline-container-org2762ef6" class="outline-3">
+<h3 id="org2762ef6"><span class="section-number-3">6.1</span> What&rsquo;s in a tree?</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+Informally, a tree describes the content of the work tree, that it, it
+associates blobs to paths.  It&rsquo;s an array of three-element tuples made
+of a file mode, a path (relative to the worktree) and a SHA-1.  A
+typical tree contents may look like this:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Mode</th>
+<th scope="col" class="org-left">SHA-1</th>
+<th scope="col" class="org-left">Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>100644</code></td>
+<td class="org-left"><code>894a44cc066a027465cd26d634948d56d13af9af</code></td>
+<td class="org-left"><code>.gitignore</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>100644</code></td>
+<td class="org-left"><code>94a9ed024d3859793618152ea559a168bbcbb5e2</code></td>
+<td class="org-left"><code>LICENSE</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>100644</code></td>
+<td class="org-left"><code>bab489c4f4600a38ce6dbfd652b90383a4aa3e45</code></td>
+<td class="org-left"><code>README.md</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>100644</code></td>
+<td class="org-left"><code>6d208e47659a2a10f5f8640e0155d9276a2130a9</code></td>
+<td class="org-left"><code>src</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>040000</code></td>
+<td class="org-left"><code>e7445b03aea61ec801b20d6ab62f076208b7d097</code></td>
+<td class="org-left"><code>tests</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><code>040000</code></td>
+<td class="org-left"><code>d5ec863f17f3a2e92aa8f6b66ac18f7b09fd1b38</code></td>
+<td class="org-left"><code>main.c</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Mode is just the file&rsquo;s <a href="https://en.wikipedia.org/wiki/File_system_permissions">mode</a>, path is its location.  The SHA-1 refers
+to either a blob or another tree object.  If a blob, the path is a
+file, if a tree, it&rsquo;s directory.  To instantiate this tree in the
+filesystem, we would begin by loading the object associated to the
+first path (<code>.gitignore</code>) and check its type.  Since it&rsquo;s a blob, we&rsquo;ll
+just create a file called <code>.gitignore</code> with this blob&rsquo;s contents; and
+same for <code>LICENSE</code> and <code>README.md</code>.  But the object associated with <code>src</code> is
+not a blob, but another tree: we&rsquo;ll create the directory <code>src</code> and
+repeat the same operation in that directory with the new tree.
+</p>
+
+<div class="warning">
+<p>
+<b>A path is a single filesystem entry</b>
+</p>
+
+<p>
+The path identifies exactly one object.  Not two, not three.  If you
+have five levels of nested directories, you&rsquo;re going to need five
+tree objects recursively referring to one another.  You cannot take
+the shortcut of putting a full path in a single tree entry, like
+<code>dir1/dir2/dir3/dir4/dir5</code>.
+</p>
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga708f5f" class="outline-3">
+<h3 id="orga708f5f"><span class="section-number-3">6.2</span> Parsing trees</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+Unlike tags and commits, tree objects are binary objects, but their
+format is actually quite simple.  A tree is the concatenation of records of
+the format:
+</p>
+
+<pre class="example">
+[mode] space [path] 0x00 [sha-1]
+</pre>
+
+<ul class="org-ul">
+<li><code>[mode]</code> is up to six bytes and is an ASCII representation of a file mode.
+For example, 100644 is encoded with byte values 49 (ASCII &ldquo;1&rdquo;), 48
+(ASCII &ldquo;0&rdquo;), 48, 54, 52, 52.</li>
+
+<li>It&rsquo;s followed by 0x20, an ASCII space;</li>
+
+<li>Followed by the null-terminated (0x00) path;</li>
+
+<li>Followed by the object&rsquo;s SHA-1 in binary encoding, on 20 bytes.  Why
+binary?  God only knows.</li>
+</ul>
+
+<p>
+The parser is going to be quite simple.  First, create a tiny object
+wrapper for a single record (a leaf, a single path):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitTreeLeaf</span>(<span class="org-builtin">object</span>):
+    <span class="org-keyword">def</span> <span class="org-function-name">__init__</span>(<span class="org-keyword">self</span>, mode, path, sha):
+        <span class="org-keyword">self</span>.mode = mode
+        <span class="org-keyword">self</span>.path = path
+        <span class="org-keyword">self</span>.sha = sha
+</pre>
+</div>
+
+<p>
+Because a tree object is just the repetition of the same fundamental
+data structure, we write the parser in two functions.  First, a parser
+to extract a single record, which returns parsed data and the position
+it reached in input data:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">tree_parse_one</span>(raw, start=0):
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Find the space terminator of the mode</span>
+    <span class="org-variable-name">x</span> = raw.find(b<span class="org-string">' '</span>, start)
+    <span class="org-keyword">assert</span>(x-start == 5 <span class="org-keyword">or</span> x-start==6)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Read the mode</span>
+    <span class="org-variable-name">mode</span> = raw[start:x]
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Find the NULL terminator of the path</span>
+    <span class="org-variable-name">y</span> = raw.find(b<span class="org-string">'\x00'</span>, x)
+    <span class="org-comment-delimiter"># </span><span class="org-comment">and read the path</span>
+    <span class="org-variable-name">path</span> = raw[x+1:y]
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Read the SHA and convert to an hex string</span>
+    <span class="org-variable-name">sha</span> = <span class="org-builtin">hex</span>(
+        <span class="org-builtin">int</span>.from_bytes(
+            raw[y+1:y+21], <span class="org-string">"big"</span>))[2:] <span class="org-comment-delimiter"># </span><span class="org-comment">hex() adds 0x in front,</span>
+                                           <span class="org-comment-delimiter"># </span><span class="org-comment">we don't want that.</span>
+    <span class="org-keyword">return</span> y+21, GitTreeLeaf(mode, path, sha)
+</pre>
+</div>
+
+<p>
+And the &ldquo;real&rdquo; parser which just calls the previous one in a loop,
+until input data is exhausted.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">tree_parse</span>(raw):
+    <span class="org-variable-name">pos</span> = 0
+    <span class="org-builtin">max</span> = <span class="org-builtin">len</span>(raw)
+    <span class="org-variable-name">ret</span> = <span class="org-builtin">list</span>()
+    <span class="org-keyword">while</span> pos &lt; <span class="org-builtin">max</span>:
+        <span class="org-variable-name">pos</span>, <span class="org-variable-name">data</span> = tree_parse_one(raw, pos)
+        ret.append(data)
+
+    <span class="org-keyword">return</span> ret
+</pre>
+</div>
+
+<p>
+Last but not least, we&rsquo;ll need a serializer:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">tree_serialize</span>(obj):
+    <span class="org-comment-delimiter">#</span><span class="org-comment">@FIXME Add serializer!</span>
+    <span class="org-variable-name">ret</span> = b<span class="org-string">''</span>
+    <span class="org-keyword">for</span> i <span class="org-keyword">in</span> obj.items:
+        <span class="org-variable-name">ret</span> += i.mode
+        <span class="org-variable-name">ret</span> += b<span class="org-string">' '</span>
+        <span class="org-variable-name">ret</span> += i.path
+        <span class="org-variable-name">ret</span> += b<span class="org-string">'\x00'</span>
+        <span class="org-variable-name">sha</span> = <span class="org-builtin">int</span>(i.sha, 16)
+        <span class="org-comment-delimiter"># </span><span class="org-comment">@FIXME Does</span>
+        <span class="org-variable-name">ret</span> += sha.to_bytes(20, byteorder=<span class="org-string">"big"</span>)
+    <span class="org-keyword">return</span> ret
+</pre>
+</div>
+
+<p>
+And now we just have to combine all that into a class:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitTree</span>(GitObject):
+    <span class="org-variable-name">fmt</span>=b<span class="org-string">'tree'</span>
+
+    <span class="org-keyword">def</span> <span class="org-function-name">deserialize</span>(<span class="org-keyword">self</span>, data):
+        <span class="org-keyword">self</span>.items = tree_parse(data)
+
+    <span class="org-keyword">def</span> <span class="org-function-name">serialize</span>(<span class="org-keyword">self</span>):
+        <span class="org-keyword">return</span> tree_serialize(<span class="org-keyword">self</span>)
+</pre>
+</div>
+
+<p>
+While we&rsquo;re at it, let&rsquo;s add the <code>ls-tree</code> command to wyag.  It&rsquo;s
+so easy there&rsquo;s no reason not to.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgeea6981"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"ls-tree"</span>, <span class="org-builtin">help</span>=<span class="org-string">"Pretty-print a tree object."</span>)
+argsp.add_argument(<span class="org-string">"object"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"The object to show."</span>)
+
+<span class="org-keyword">def</span> <span class="org-function-name">cmd_ls_tree</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+    <span class="org-variable-name">obj</span> = object_read(repo, object_find(repo, args.<span class="org-builtin">object</span>, fmt=b<span class="org-string">'tree'</span>))
+
+    <span class="org-keyword">for</span> item <span class="org-keyword">in</span> obj.items:
+        <span class="org-keyword">print</span>(<span class="org-string">"{0} {1} {2}\t{3}"</span>.<span class="org-builtin">format</span>(
+            <span class="org-string">"0"</span> * (6 - <span class="org-builtin">len</span>(item.mode)) + item.mode.decode(<span class="org-string">"ascii"</span>),
+            <span class="org-comment-delimiter"># </span><span class="org-comment">Git's ls-tree displays the type</span>
+            <span class="org-comment-delimiter"># </span><span class="org-comment">of the object pointed to.  We can do that too :)</span>
+            object_read(repo, item.sha).fmt.decode(<span class="org-string">"ascii"</span>),
+            item.sha,
+            item.path.decode(<span class="org-string">"ascii"</span>)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org7292a7e" class="outline-3">
+<h3 id="cmd-checkout"><span class="section-number-3">6.3</span> The checkout command</h3>
+<div class="outline-text-3" id="text-cmd-checkout">
+<p>
+We&rsquo;re going to oversimplify the actual git command to make our implementation clear and understandable.  We&rsquo;re also going to add a few safeguards.  Here&rsquo;s how our version of checkout will work:
+</p>
+
+<ul class="org-ul">
+<li>It will take two arguments: a commit, and a directory.  Git checkout only needs a commit.</li>
+
+<li>It will then instantiate the tree in the directory, <b>if and only if the directory is empty</b>.  Git is full of safeguards to avoid deleting data, which would be too complicated and unsafe to try to reproduce in wyag.  Since the point of wyag is to demonstrate git, not to produce a working implementation, this limitation is acceptable.</li>
+</ul>
+
+<p>
+Let&rsquo;s get started.  As usual, we need a subparser:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"checkout"</span>, <span class="org-builtin">help</span>=<span class="org-string">"Checkout a commit inside of a directory."</span>)
+
+argsp.add_argument(<span class="org-string">"commit"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"The commit or tree to checkout."</span>)
+
+argsp.add_argument(<span class="org-string">"path"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"The EMPTY directory to checkout on."</span>)
+</pre>
+</div>
+
+<p>
+A wrapper function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_checkout</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+
+    <span class="org-variable-name">obj</span> = object_read(repo, object_find(repo, args.commit))
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">If the object is a commit, we grab its tree</span>
+    <span class="org-keyword">if</span> obj.fmt == b<span class="org-string">'commit'</span>:
+        <span class="org-variable-name">obj</span> = object_read(repo, obj.kvlm[b<span class="org-string">'tree'</span>].decode(<span class="org-string">"ascii"</span>))
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Verify that path is an empty directory</span>
+    <span class="org-keyword">if</span> os.path.exists(args.path):
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> os.path.isdir(args.path):
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Not a directory {0}!"</span>.<span class="org-builtin">format</span>(args.path))
+        <span class="org-keyword">if</span> os.listdir(args.path):
+            <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Not empty {0}!"</span>.<span class="org-builtin">format</span>(args.path))
+    <span class="org-keyword">else</span>:
+        os.makedirs(args.path)
+
+    tree_checkout(repo, obj, os.path.realpath(args.path).encode())
+</pre>
+</div>
+
+<p>
+And a function to do the actual work:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">tree_checkout</span>(repo, tree, path):
+    <span class="org-keyword">for</span> item <span class="org-keyword">in</span> tree.items:
+        <span class="org-variable-name">obj</span> = object_read(repo, item.sha)
+        <span class="org-variable-name">dest</span> = os.path.join(path, item.path)
+
+        <span class="org-keyword">if</span> obj.fmt == b<span class="org-string">'tree'</span>:
+            os.mkdir(dest)
+            tree_checkout(repo, obj, dest)
+        <span class="org-keyword">elif</span> obj.fmt == b<span class="org-string">'blob'</span>:
+            <span class="org-keyword">with</span> <span class="org-builtin">open</span>(dest, <span class="org-string">'wb'</span>) <span class="org-keyword">as</span> f:
+                f.write(obj.blobdata)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9bcac5c" class="outline-2">
+<h2 id="org9bcac5c"><span class="section-number-2">7</span> Refs, tags and branches</h2>
+<div class="outline-text-2" id="text-7">
+</div>
+<div id="outline-container-org6c64fc7" class="outline-3">
+<h3 id="org6c64fc7"><span class="section-number-3">7.1</span> What&rsquo;s a ref?</h3>
+<div class="outline-text-3" id="text-7-1">
+<p>
+Git references, or refs, are probably the most simple type of things
+git holds.  They live in subdirectories of <code>.git/refs</code>, and are text
+files containing a hexadecimal representation of an object&rsquo;s hash,
+encoded in ASCII.  They&rsquo;re actually as simple as this:
+</p>
+
+<pre class="example">
+6071c08bcb4757d8c89a30d9755d2466cef8c1de
+</pre>
+
+<p>
+Refs can also refer to another reference, and thus only indirectly to
+an object, in which case they look like this:
+</p>
+
+<pre class="example">
+ref: refs/remotes/origin/master
+</pre>
+
+<div class="note">
+<p>
+<b>Direct and indirect references</b>
+</p>
+
+<p>
+From now on, I will call a reference of the form <code>ref:
+path/to/other/ref</code> an <b>indirect</b> reference, and a ref with a SHA-1 object
+ID a <b>direct reference</b>.
+</p>
+
+</div>
+
+<p>
+This whole section will describe the uses of refs.  For now, all that
+matter is this:
+</p>
+
+<ul class="org-ul">
+<li>they&rsquo;re text files, in the <code>.git/refs</code> hierarchy;</li>
+<li>they hold the sha-1 identifier of an object, or a reference to
+another branch.</li>
+</ul>
+
+<p>
+To work with refs, we&rsquo;re first going to need a simple recursive solver
+that will take a ref name, follow eventual recursive references
+(refs whose content begin with <code>ref:</code>, as exemplified above) and return
+a SHA-1:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">ref_resolve</span>(repo, ref):
+    <span class="org-keyword">with</span> <span class="org-builtin">open</span>(repo_file(repo, ref), <span class="org-string">'r'</span>) <span class="org-keyword">as</span> fp:
+        <span class="org-variable-name">data</span> = fp.read()[:-1]
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Drop final \n ^^^^^</span>
+    <span class="org-keyword">if</span> data.startswith(<span class="org-string">"ref: "</span>):
+        <span class="org-keyword">return</span> ref_resolve(repo, data[5:])
+    <span class="org-keyword">else</span>:
+        <span class="org-keyword">return</span> data
+</pre>
+</div>
+
+<p>
+Let&rsquo;s create two small functions, and implement the <code>show-refs</code>
+command.  First, a stupid recursive function to collect refs
+and return them as a dict:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">ref_list</span>(repo, path=<span class="org-constant">None</span>):
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> path:
+        <span class="org-variable-name">path</span> = repo_dir(repo, <span class="org-string">"refs"</span>)
+    <span class="org-variable-name">ret</span> = collections.OrderedDict()
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Git shows refs sorted.  To do the same, we use</span>
+    <span class="org-comment-delimiter"># </span><span class="org-comment">an OrderedDict and sort the output of listdir</span>
+    <span class="org-keyword">for</span> f <span class="org-keyword">in</span> <span class="org-builtin">sorted</span>(os.listdir(path)):
+        <span class="org-variable-name">can</span> = os.path.join(path, f)
+        <span class="org-keyword">if</span> os.path.isdir(can):
+            <span class="org-variable-name">ret</span>[f] = ref_list(repo, can)
+        <span class="org-keyword">else</span>:
+            <span class="org-variable-name">ret</span>[f] = ref_resolve(repo, can)
+
+    <span class="org-keyword">return</span> ret
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(<span class="org-string">"show-ref"</span>, <span class="org-builtin">help</span>=<span class="org-string">"List references."</span>)
+
+<span class="org-keyword">def</span> <span class="org-function-name">cmd_show_ref</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+    <span class="org-variable-name">refs</span> = ref_list(repo)
+    show_ref(repo, refs, prefix=<span class="org-string">"refs"</span>)
+
+<span class="org-keyword">def</span> <span class="org-function-name">show_ref</span>(repo, refs, with_hash=<span class="org-constant">True</span>, prefix=<span class="org-string">""</span>):
+    <span class="org-keyword">for</span> k, v <span class="org-keyword">in</span> refs.items():
+        <span class="org-keyword">if</span> <span class="org-builtin">type</span>(v) == <span class="org-builtin">str</span>:
+            <span class="org-keyword">print</span> (<span class="org-string">"{0}{1}{2}"</span>.<span class="org-builtin">format</span>(
+                v + <span class="org-string">" "</span> <span class="org-keyword">if</span> with_hash <span class="org-keyword">else</span> <span class="org-string">""</span>,
+                prefix + <span class="org-string">"/"</span> <span class="org-keyword">if</span> prefix <span class="org-keyword">else</span> <span class="org-string">""</span>,
+                k))
+        <span class="org-keyword">else</span>:
+            show_ref(repo, v, with_hash=with_hash, prefix=<span class="org-string">"{0}{1}{2}"</span>.<span class="org-builtin">format</span>(prefix, <span class="org-string">"/"</span> <span class="org-keyword">if</span> prefix <span class="org-keyword">else</span> <span class="org-string">""</span>, k))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org00788cc" class="outline-3">
+<h3 id="org00788cc"><span class="section-number-3">7.2</span> What&rsquo;s a tag?</h3>
+<div class="outline-text-3" id="text-7-2">
+<p>
+The most simple use of refs is tags.  A tag is just a user-defined
+name for an object, often a commit.  A very common use of tags is
+identifying software releases: You&rsquo;ve just merged the last commit of,
+say, version 12.78.52 of your program, so your most recent commit
+(let&rsquo;s call it <code>6071c08</code>) <i>is</i> your version 12.78.52.  To make this
+association explicit, all you have to do is:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">git tag v12.78.52 6071c08
+<span class="org-comment-delimiter"># </span><span class="org-comment">the object hash ^here^^ is optional and defaults to HEAD.</span>
+</pre>
+</div>
+
+<p>
+This creates a new tag, called <code>v12.78.52</code>, pointing at <code>6071c08</code>.
+Tagging is like aliasing: a tag introduces a new way to refer to an
+existing object.  After the tag is created, the name <code>v12.78.52</code> refers
+to <code>6071c08</code>.  For example, these two commands are now perfectly
+equivalent:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">git checkout v12.78.52
+git checkout 6071c08
+</pre>
+</div>
+
+<div class="note">
+<p>
+Versions are a common use of tags, but like almost everything in
+Git, tags have no predefined semantics: they mean whatever you want
+them to mean, and can point to whichever object you want, you can
+even tag <i>blobs</i>!
+</p>
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc582c97" class="outline-3">
+<h3 id="orgc582c97"><span class="section-number-3">7.3</span> Parsing tag objects</h3>
+<div class="outline-text-3" id="text-7-3">
+<p>
+You&rsquo;ve probably guessed already that tags are actually refs.  They
+live in the <code>.git/refs/tags/</code> hierarchy.  The only point worth noting is
+that they come in two flavors: lightweight tags and tags objects.
+</p>
+
+<dl class="org-dl">
+<dt>&ldquo;Lightweight&rdquo; tags</dt><dd>are just regular refs to a commit, a tree or
+a blob.</dd>
+
+<dt>Tag objects</dt><dd>are regular refs pointing to an object of type <code>tag</code>.
+Unlike lightweight tags, tag objects have an author,
+a date, an optional PGP signature and an optional
+annotation.  Their format is the same as a commit
+object.</dd>
+</dl>
+
+<p>
+We don&rsquo;t even need to implement tag objects, we can reuse <code>GitCommit</code>
+and just change the <code>fmt</code> field:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitTag</span>(GitCommit):
+    <span class="org-variable-name">fmt</span> = b<span class="org-string">'tag'</span>
+</pre>
+</div>
+
+<p>
+And now we support tags.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8f409c4" class="outline-3">
+<h3 id="cmd-tag"><span class="section-number-3">7.4</span> The tag command</h3>
+<div class="outline-text-3" id="text-cmd-tag">
+<p>
+Let&rsquo;s add the tag command.  In Git, it does two things: it creates a
+new tag or list existing tags (by default).  So you can invoke it with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">git tag                  <span class="org-comment-delimiter"># </span><span class="org-comment">List all tags</span>
+git tag NAME [OBJECT]    <span class="org-comment-delimiter"># </span><span class="org-comment">create a new *lightweight* tag NAME, pointing</span>
+                         <span class="org-comment-delimiter"># </span><span class="org-comment">at HEAD (default) or OBJECT</span>
+git tag -a NAME [OBJECT] <span class="org-comment-delimiter"># </span><span class="org-comment">create a new tag *object* NAME, pointing at</span>
+                         <span class="org-comment-delimiter"># </span><span class="org-comment">HEAD (default) or OBJECT</span>
+</pre>
+</div>
+
+<p>
+This translates to argparse as follows.  Notice we ignore the mutual
+exclusion between <code>--list</code> and <code>[-a] name [object]</code>, which seems too
+complicated for argparse.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(
+    <span class="org-string">"tag"</span>,
+    <span class="org-builtin">help</span>=<span class="org-string">"List and create tags"</span>)
+
+argsp.add_argument(<span class="org-string">"-a"</span>,
+                    action=<span class="org-string">"store_true"</span>,
+                    dest=<span class="org-string">"create_tag_object"</span>,
+                    <span class="org-builtin">help</span>=<span class="org-string">"Whether to create a tag object"</span>)
+
+argsp.add_argument(<span class="org-string">"name"</span>,
+                    nargs=<span class="org-string">"?"</span>,
+                    <span class="org-builtin">help</span>=<span class="org-string">"The new tag's name"</span>)
+
+argsp.add_argument(<span class="org-string">"object"</span>,
+                    default=<span class="org-string">"HEAD"</span>,
+                    nargs=<span class="org-string">"?"</span>,
+                    <span class="org-builtin">help</span>=<span class="org-string">"The object the new tag will point to"</span>)
+</pre>
+</div>
+
+<p>
+The <code>cmd_tag</code> function will dispatch behavior (list or create) depending
+on whether or not <code>name</code> is provided.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_tag</span>(args):
+    <span class="org-variable-name">repo</span> = repo_find()
+
+    <span class="org-keyword">if</span> args.name:
+        tag_create(args.name,
+                   args.<span class="org-builtin">object</span>,
+                   <span class="org-builtin">type</span>=<span class="org-string">"object"</span> <span class="org-keyword">if</span> args.create_tag_object <span class="org-keyword">else</span> <span class="org-string">"ref"</span>)
+    <span class="org-keyword">else</span>:
+        <span class="org-variable-name">refs</span> = ref_list(repo)
+        show_ref(repo, refs[<span class="org-string">"tags"</span>], with_hash=<span class="org-constant">False</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc500eb5" class="outline-3">
+<h3 id="orgc500eb5"><span class="section-number-3">7.5</span> What&rsquo;s a branch?</h3>
+<div class="outline-text-3" id="text-7-5">
+<p>
+It&rsquo;s time to address the elephant in the room: like most Git users,
+wyag still doesn&rsquo;t have any idea what a branch is.  It currently
+treats a repository as a bunch of disorganized objects, some of them
+commits, and has no representation whatsoever of the fact that commits
+are grouped in branches, and that at every point in time there&rsquo;s a
+commit that&rsquo;s <code>HEAD</code>, <i>ie</i>, the <b>head</b> commit of the <b>current</b> branch.
+</p>
+
+<p>
+Now, what&rsquo;s a branch?  The answer is actually surprisingly simple, but
+it may also end up being simply surprising: <b>a branch is a reference to
+a commit</b>.  You could even say that a branch is a kind of a name for a
+commit.  In this regard, a branch is exactly the same thing as a tag.
+Tags are refs that live in <code>.git/refs/tags</code>, branches are refs that live
+in  <code>.git/refs/heads</code>.
+</p>
+
+<p>
+There are, of course, differences between a branch and a tag:
+</p>
+
+<ol class="org-ol">
+<li>Branches are references to a commit, tags can refer to any object;</li>
+<li>But most importantly, the branch ref is updated at each commit.  This means
+that whenever you commit, Git actually does this:
+<ol class="org-ol">
+<li>a new commit object is created, with the current branch&rsquo;s ID as
+its parent;</li>
+<li>the commit object is hashed and stored;</li>
+<li>the branch ref is updated to refer to the new commit&rsquo;s hash.</li>
+</ol></li>
+</ol>
+
+<p>
+That&rsquo;s all.
+</p>
+
+<p>
+But what about the <b>current</b> branch?  It&rsquo;s actually even easier.  It&rsquo;s a
+ref file outside of the <code>refs</code> hierarchy, in <code>.git/HEAD</code>, which is an
+<b>indirect</b> ref (that is, it is of the form <code>ref: path/to/other/ref</code>, and
+not a simple hash).
+</p>
+
+<div class="info">
+<p>
+<b>Detached HEAD</b>
+</p>
+
+<p>
+When you just checkout a random commit, git will warn you it&rsquo;s in
+&ldquo;detached HEAD state&rdquo;.  This means you&rsquo;re not on any branch
+anymore.  In this case, <code>.git/HEAD</code> is a <b>direct</b> reference: it
+contains a SHA-1.
+</p>
+
+</div>
+</div>
+</div>
+
+<div id="outline-container-org94df8ee" class="outline-3">
+<h3 id="func-object_find"><span class="section-number-3">7.6</span> Referring to objects: the <code>object_find</code> function</h3>
+<div class="outline-text-3" id="text-func-object_find">
+</div>
+
+<div id="outline-container-orga590ffc" class="outline-4">
+<h4 id="orga590ffc"><span class="section-number-4">7.6.1</span> Resolving names</h4>
+<div class="outline-text-4" id="text-7-6-1">
+<p>
+Remember when we&rsquo;ve created <a href="#org20a025b">the stupid <code>object_find</code> function</a> that would
+take four arguments, return the second unmodified and ignore the other
+three?  It&rsquo;s time to replace it by something more useful.  We&rsquo;re going
+to implement a small, but usable, subset of the actual Git name
+resolution algorithm.  The new <code>object_find()</code> will work in two steps:
+first, given a name, it will return a complete sha-1 hash.  For
+example, with <code>HEAD</code>, it will return the hash of the head commit of the
+current branch, etc.  More precisely, this name resolution function
+will work like this:
+</p>
+
+<ul class="org-ul">
+<li>If <code>name</code> is HEAD, it will just resolve <code>.git/HEAD</code>;</li>
+<li>If <code>name</code> is a full hash, this hash is returned unmodified.</li>
+<li>If <code>name</code> looks like a short hash, it will collect objects whose full
+hash begin with this short hash.</li>
+<li>At last, it will resolve tags and branches matching name.</li>
+</ul>
+
+<p>
+Notice how the last two steps <i>collect</i> values: the first two are
+absolute references, so we can safely return a result.  But short
+hashes or branch names can be ambiguous, we want to enumerate all
+possible meanings of the name and raise an error if we&rsquo;ve found more
+than 1.
+</p>
+
+<div class="info">
+<p>
+<b>Short hashes</b>
+</p>
+
+<p>
+For convenience, Git allows to refer to hashes by a prefix of their
+name.  For example, <code>5bd254aa973646fa16f66d702a5826ea14a3eb45</code> can be
+referred to as <code>5bd254</code>.  This is called a &ldquo;short hash&rdquo;.
+</p>
+
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_resolve</span>(repo, name):
+    <span class="org-doc">"""Resolve name to an object hash in repo.</span>
+
+<span class="org-doc">This function is aware of:</span>
+
+<span class="org-doc"> - the HEAD literal</span>
+<span class="org-doc"> - short and long hashes</span>
+<span class="org-doc"> - tags</span>
+<span class="org-doc"> - branches</span>
+<span class="org-doc"> - remote branches"""</span>
+    <span class="org-variable-name">candidates</span> = <span class="org-builtin">list</span>()
+    <span class="org-variable-name">hashRE</span> = re.<span class="org-builtin">compile</span>(r<span class="org-string">"^[0-9A-Fa-f]{1,16}$"</span>)
+    <span class="org-variable-name">smallHashRE</span> = re.<span class="org-builtin">compile</span>(r<span class="org-string">"^[0-9A-Fa-f]{1,16}$"</span>)
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Empty string?  Abort.</span>
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> name.strip():
+        <span class="org-keyword">return</span> <span class="org-constant">None</span>
+
+    <span class="org-comment-delimiter"># </span><span class="org-comment">Head is nonambiguous</span>
+    <span class="org-keyword">if</span> name == <span class="org-string">"HEAD"</span>:
+        <span class="org-keyword">return</span> [ ref_resolve(repo, <span class="org-string">"HEAD"</span>) ]
+
+
+    <span class="org-keyword">if</span> hashRE.match(name):
+        <span class="org-keyword">if</span> <span class="org-builtin">len</span>(name) == 40:
+            <span class="org-comment-delimiter"># </span><span class="org-comment">This is a complete hash</span>
+            <span class="org-keyword">return</span> [ name.lower() ]
+        <span class="org-keyword">elif</span> <span class="org-builtin">len</span>(name) &gt;= 4:
+            <span class="org-comment-delimiter"># </span><span class="org-comment">This is a small hash 4 seems to be the minimal length</span>
+            <span class="org-comment-delimiter"># </span><span class="org-comment">for git to consider something a short hash.</span>
+            <span class="org-comment-delimiter"># </span><span class="org-comment">This limit is documented in man git-rev-parse</span>
+            <span class="org-variable-name">name</span> = name.lower()
+            <span class="org-variable-name">prefix</span> = name[0:2]
+            <span class="org-variable-name">path</span> = repo_dir(repo, <span class="org-string">"objects"</span>, prefix, mkdir=<span class="org-constant">False</span>)
+            <span class="org-keyword">if</span> path:
+                <span class="org-variable-name">rem</span> = name[2:]
+                <span class="org-keyword">for</span> f <span class="org-keyword">in</span> os.listdir(path):
+                    <span class="org-keyword">if</span> f.startswith(rem):
+                        candidates.append(prefix + f)
+
+    <span class="org-keyword">return</span> candidates
+</pre>
+</div>
+
+<p>
+The second step is to follow the object we found to an object of the
+required type, if a type argument was provided.  Since we only need to
+handle trivial cases, this is a very simple iterative process:
+</p>
+
+<ul class="org-ul">
+<li>If we have a tag and <code>fmt</code> is anything else, we follow the tag.</li>
+<li>If we have a commit and <code>fmt</code> is tree, we return this commit&rsquo;s tree
+object</li>
+<li>In all other situations, we abort.</li>
+</ul>
+
+<p>
+(The process is iterative because it may take an undefined number of
+steps, since tags themselves can be tagged)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">object_find</span>(repo, name, fmt=<span class="org-constant">None</span>, follow=<span class="org-constant">True</span>):
+    <span class="org-variable-name">sha</span> = object_resolve(repo, name)
+
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> sha:
+        <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"No such reference {0}."</span>.<span class="org-builtin">format</span>(name))
+
+    <span class="org-keyword">if</span> <span class="org-builtin">len</span>(sha) &gt; 1:
+        <span class="org-keyword">raise</span> <span class="org-type">Exception</span>(<span class="org-string">"Ambiguous reference {0}: Candidates are:\n - {1}."</span>.<span class="org-builtin">format</span>(name,  <span class="org-string">"\n - "</span>.join(sha)))
+
+    <span class="org-variable-name">sha</span> = sha[0]
+
+    <span class="org-keyword">if</span> <span class="org-keyword">not</span> fmt:
+        <span class="org-keyword">return</span> sha
+
+    <span class="org-keyword">while</span> <span class="org-constant">True</span>:
+        <span class="org-variable-name">obj</span> = object_read(repo, sha)
+
+        <span class="org-keyword">if</span> obj.fmt == fmt:
+            <span class="org-keyword">return</span> sha
+
+        <span class="org-keyword">if</span> <span class="org-keyword">not</span> follow:
+            <span class="org-keyword">return</span> <span class="org-constant">None</span>
+
+        <span class="org-comment-delimiter"># </span><span class="org-comment">Follow tags</span>
+        <span class="org-keyword">if</span> obj.fmt == b<span class="org-string">'tag'</span>:
+            <span class="org-variable-name">sha</span> = obj.kvlm[b<span class="org-string">'object'</span>].decode(<span class="org-string">"ascii"</span>)
+        <span class="org-keyword">elif</span> obj.fmt == b<span class="org-string">'commit'</span> <span class="org-keyword">and</span> fmt == b<span class="org-string">'tree'</span>:
+            <span class="org-variable-name">sha</span> = obj.kvlm[b<span class="org-string">'tree'</span>].decode(<span class="org-string">"ascii"</span>)
+        <span class="org-keyword">else</span>:
+            <span class="org-keyword">return</span> <span class="org-constant">None</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org0b6acd1" class="outline-4">
+<h4 id="org0b6acd1"><span class="section-number-4">7.6.2</span> The rev-parse command</h4>
+<div class="outline-text-4" id="text-7-6-2">
+<p>
+The <code>git rev-parse</code> commands does a lot, but one of its use cases is
+solving revision (commits) references.  For the purpose of testing the
+&ldquo;follow&rdquo; feature of <code>object_find</code>, we&rsquo;ll add an optional <code>wyag-type</code>
+arguments to its interface.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-variable-name">argsp</span> = argsubparsers.add_parser(
+    <span class="org-string">"rev-parse"</span>,
+    <span class="org-builtin">help</span>=<span class="org-string">"Parse revision (or other objects )identifiers"</span>)
+
+argsp.add_argument(<span class="org-string">"--wyag-type"</span>,
+                   metavar=<span class="org-string">"type"</span>,
+                   dest=<span class="org-string">"type"</span>,
+                   choices=[<span class="org-string">"blob"</span>, <span class="org-string">"commit"</span>, <span class="org-string">"tag"</span>, <span class="org-string">"tree"</span>],
+                   default=<span class="org-constant">None</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"Specify the expected type"</span>)
+
+argsp.add_argument(<span class="org-string">"name"</span>,
+                   <span class="org-builtin">help</span>=<span class="org-string">"The name to parse"</span>)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">def</span> <span class="org-function-name">cmd_rev_parse</span>(args):
+    <span class="org-keyword">if</span> args.<span class="org-builtin">type</span>:
+        <span class="org-variable-name">fmt</span> = args.<span class="org-builtin">type</span>.encode()
+
+    <span class="org-variable-name">repo</span> = repo_find()
+
+    <span class="org-keyword">print</span> (object_find(repo, args.name, args.<span class="org-builtin">type</span>, follow=<span class="org-constant">True</span>))
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-orgfb299ae" class="outline-2">
+<h2 id="orgfb299ae"><span class="section-number-2">8</span> The staging area and the index file</h2>
+<div class="outline-text-2" id="text-8">
+<p>
+Creating commits seems to be simply a matter of creating a bunch of
+new tree object (not just one, remember they&rsquo;re recursive &#x2014; you need
+exactly one per directory), a commit object pointing at the root tree
+object, and updating <code>HEAD</code> to point to that commit &#x2014; and yes, we
+could do it like this, but Git chooses a much more complicated road:
+the staging area, implemented in the form of the index file.
+</p>
+
+<p>
+You certainly know that to commit in Git, you first &ldquo;stage&rdquo; some
+changes, using <code>git add</code> and <code>git rm</code>, <i>then</i> commit.  It would seem logical
+to use a commit-like object to represent the staging area, but Git
+goes a completely different way, and uses a completely different
+mechanism, in the form of the index file.  The index file represents a
+set of changes from the HEAD commit, to commit, they must be combined
+to create a new commit.
+</p>
+</div>
+
+<div id="outline-container-org4b21691" class="outline-3">
+<h3 id="org4b21691"><span class="section-number-3">8.1</span> Parsing the index</h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+The index file is by far the most complicated piece of data a Git
+repository can hold.  Its complete documentation can be found in Git
+source tree at <code>Documentation/technical/commit-graph-format.txt</code>, you
+can read it <a href="https://github.com/git/git/blob/master/Documentation/technical/index-format.txt">on the Github mirror</a>.  The index is made of three parts:
+</p>
+
+<ul class="org-ul">
+<li>A classic header with a signature and a few basic info, most
+importantly the number of entries it holds;</li>
+<li>A series of entries, sorted, each representing a change;</li>
+<li>A series of optional extensions, which we&rsquo;ll ignore.</li>
+</ul>
+
+<p>
+The only thing we need to represent is an entry item.  It actually
+holds quite a lot of stuff:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span class="org-keyword">class</span> <span class="org-type">GitIndexEntry</span>(<span class="org-builtin">object</span>):
+    <span class="org-variable-name">ctime</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The last time a file's metadata changed.  This is a tuple (seconds, nanoseconds)"""</span>
+
+    <span class="org-variable-name">mtime</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The last time a file's data changed.  This is a tuple (seconds, nanoseconds)"""</span>
+
+    <span class="org-variable-name">dev</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The ID of device containing this file"""</span>
+    <span class="org-variable-name">ino</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The file's inode number"""</span>
+    <span class="org-variable-name">mode_type</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The object type, either b1000 (regular), b1010 (symlink), b1110 (gitlink). """</span>
+    <span class="org-variable-name">mode_perms</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The object permissions, an integer."""</span>
+    <span class="org-variable-name">uid</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""User ID of owner"""</span>
+    <span class="org-variable-name">gid</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""Group ID of ownner (according to stat 2.  Isn'th)"""</span>
+    <span class="org-variable-name">size</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""Size of this object, in bytes"""</span>
+    <span class="org-variable-name">obj</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""The object's hash as a hex string"""</span>
+    <span class="org-variable-name">flag_assume_valid</span> = <span class="org-constant">None</span>
+    <span class="org-variable-name">flag_extended</span> = <span class="org-constant">None</span>
+    <span class="org-variable-name">flag_stage</span> = <span class="org-constant">None</span>
+    <span class="org-variable-name">flag_name_length</span> = <span class="org-constant">None</span>
+    <span class="org-doc">"""Length of the name if &lt; 0xFFF (yes, three Fs), -1 otherwise"""</span>
+
+    <span class="org-variable-name">name</span> = <span class="org-constant">None</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org235a93b" class="outline-2">
+<h2 id="org235a93b"><span class="section-number-2">9</span> Final words</h2>
+<div class="outline-text-2" id="text-9">
+</div>
+<div id="outline-container-org7f1e11e" class="outline-3">
+<h3 id="feedback"><span class="section-number-3">9.1</span> Comments, feedback and issues</h3>
+<div class="outline-text-3" id="text-feedback">
+<p>
+This page has no comment system.  To report issues or just give
+feedback, you may use:
+</p>
+
+<dl class="org-dl">
+<dt>Github</dt><dd>If you have a Github account, you can <a href="https://github.com/thblt/write-yourself-a-git/issues/new">create an issue</a>,
+either to report a problem or a bug, or just for) general
+feedback :</dd>
+
+<dt>E-mail</dt><dd>If you don&rsquo;t have/want a Github account, you can send me
+an e-mail at <a href="mailto:thibault@thb.lt">thibault@thb.lt</a>.</dd>
+
+<dt>Pull requests</dt><dd>are accepted (and welcome!) by e-mail or on
+Github.  Before you start making any changes,
+please read the next section.</dd>
+
+<dt>IRC</dt><dd>I&rsquo;m thblt on Freenode, feel free to message me!</dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-org56208f1" class="outline-3">
+<h3 id="contributing"><span class="section-number-3">9.2</span> Contributing</h3>
+<div class="outline-text-3" id="text-contributing">
+<p>
+If you want to contribute changes or improvements to this article or
+the wyag program, library and/or test suite, please read the
+following before you start working.
+</p>
+
+<ul class="org-ul">
+<li>Do <i>not</i> make changes to <code>wyag</code> or <code>libwyag.py</code>.  These files
+are extracted (&ldquo;tangled&rdquo;) from <code>write-yourself-a-git.org</code> and are
+included in the repository as a convenience.  Instead, search the
+code blocks corresponding to the changes you want to make and
+update them.</li>
+
+<li>The source file for <i>both</i> the article and the program is
+<code>write-yourself-a-git.org</code>.  Its format may seem unusual, but it&rsquo;s
+pretty simple and not that far from markdown.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orga204450" class="outline-3">
+<h3 id="orga204450"><span class="section-number-3">9.3</span> Release information</h3>
+<div class="outline-text-3" id="text-9-3">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Key</th>
+<th scope="col" class="org-left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">Creation date</td>
+<td class="org-left">Sat Aug 31 00:00:06 2019</td>
+</tr>
+
+<tr>
+<td class="org-left">On commit</td>
+<td class="org-left"><code>0.1-16-gc0a6aed</code> (clean)</td>
+</tr>
+
+<tr>
+<td class="org-left">By</td>
+<td class="org-left">Thibault Polge (<code>thblt</code> on <code>maladict</code>)</td>
+</tr>
+
+<tr>
+<td class="org-left">Emacs version</td>
+<td class="org-left">27.0.50</td>
+</tr>
+
+<tr>
+<td class="org-left">Org-mode version</td>
+<td class="org-left">9.2.3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org1f80107" class="outline-3">
+<h3 id="org1f80107"><span class="section-number-3">9.4</span> License</h3>
+<div class="outline-text-3" id="text-9-4">
+<p>
+This document is part of wyag &lt;<a href="https://wyag.thb.lt">https://wyag.thb.lt</a>&gt;.  Copyright (c)
+2018 Thibault Polge &lt;<a href="mailto:thibault@thb.lt">thibault@thb.lt</a>&gt;.  All rights reserved
+</p>
+
+<p>
+Wyag is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+</p>
+
+<p>
+Wyag is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+License for more details.
+</p>
+
+<p>
+You should have received a copy of the GNU General Public License
+along with Wyag.  If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+You may know that <a href="https://shattered.io/">collisions have been discovered in SHA-1</a>.
+Git actually doesn&rsquo;t use SHA-1 anymore: it uses a <a href="https://github.com/git/git/blob/26e47e261e969491ad4e3b6c298450c061749c9e/Documentation/technical/hash-function-transition.txt#L34-L36">hardened variant</a>
+which is not SHA, but which applies the same hash to every known input
+but the two PDF files known to collide.
+</p></div></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: <a href="mailto:thibault@thb.lt">Thibault Polge</a></p>
+<p class="date">Created: 2019-08-31 sam. 00:00</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
